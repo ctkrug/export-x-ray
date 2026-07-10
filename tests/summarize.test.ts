@@ -119,4 +119,74 @@ describe("summarizeArchive", () => {
       "couldn't read this file as a zip archive",
     );
   });
+
+  it("summarizes a Facebook-shaped archive end to end", async () => {
+    const archive = await buildZip({
+      "your_activity_across_facebook/posts/your_posts_1.json": JSON.stringify([
+        { timestamp: 1577836800 },
+        { timestamp: 1583020800 },
+      ]),
+      "messages/inbox/friend_123/message_1.json": JSON.stringify({
+        messages: [{ sender_name: "A", timestamp_ms: 1590000000000 }],
+      }),
+      "photos_and_videos/your_photos.json": JSON.stringify([
+        { uri: "a.jpg", creation_timestamp: 1583020800 },
+      ]),
+    });
+
+    const summary = await summarizeArchive(archive);
+
+    expect(summary.provider).toBe("facebook");
+    const byKey = Object.fromEntries(summary.categories.map((c) => [c.key, c]));
+    expect(byKey.posts?.recordCount).toBe(2);
+    expect(byKey.messages?.recordCount).toBe(1);
+    expect(byKey.photos?.recordCount).toBe(1);
+    expect(summary.dateRange.earliestMs).toBe(1577836800000);
+    expect(summary.dateRange.latestMs).toBe(1590000000000);
+  });
+
+  it("summarizes a Spotify-shaped archive end to end", async () => {
+    const archive = await buildZip({
+      "MyData/StreamingHistory0.json": JSON.stringify([
+        { endTime: "2021-06-01 12:00", artistName: "A", trackName: "T", msPlayed: 1000 },
+      ]),
+      "MyData/Playlist1.json": JSON.stringify({
+        playlists: [{ name: "Road trip", items: [{ addedDate: "2020-01-01" }] }],
+      }),
+      "MyData/YourLibrary.json": JSON.stringify({ tracks: [{ trackName: "T1" }] }),
+    });
+
+    const summary = await summarizeArchive(archive);
+
+    expect(summary.provider).toBe("spotify");
+    const byKey = Object.fromEntries(summary.categories.map((c) => [c.key, c]));
+    expect(byKey.streaming?.recordCount).toBe(1);
+    expect(byKey.playlists?.recordCount).toBe(1);
+    expect(byKey.library?.recordCount).toBe(1);
+    expect(byKey.library?.dateRange).toEqual({ earliestMs: null, latestMs: null });
+  });
+
+  it("produces the same ArchiveSummary shape across all three providers", async () => {
+    const takeout = await summarizeArchive(
+      await buildZip({ "Takeout/YouTube/history.json": "[]" }),
+    );
+    const facebook = await summarizeArchive(
+      await buildZip({ "your_activity_across_facebook/posts/your_posts_1.json": "[]" }),
+    );
+    const spotify = await summarizeArchive(await buildZip({ "MyData/YourLibrary.json": "{}" }));
+
+    for (const summary of [takeout, facebook, spotify]) {
+      expect(Object.keys(summary).sort()).toEqual(
+        ["categories", "dateRange", "fileCount", "provider", "topLevelEntries"].sort(),
+      );
+      expect(typeof summary.fileCount).toBe("number");
+      expect(Array.isArray(summary.categories)).toBe(true);
+      expect(Object.keys(summary.dateRange).sort()).toEqual(["earliestMs", "latestMs"]);
+      for (const category of summary.categories) {
+        expect(Object.keys(category).sort()).toEqual(
+          ["dateRange", "key", "label", "recordCount", "status"].sort(),
+        );
+      }
+    }
+  });
 });
