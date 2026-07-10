@@ -5,6 +5,8 @@ export interface ChunkedIterationOptions {
   now?: () => number;
   /** Injectable yield primitive, for deterministic tests. Defaults to a macrotask via setTimeout. */
   yield?: () => Promise<void>;
+  /** Checked before every item; once true, the loop stops without visiting the rest. */
+  shouldStop?: () => boolean;
 }
 
 const DEFAULT_YIELD_EVERY_MS = 150;
@@ -26,10 +28,12 @@ export async function forEachChunked<T>(
   const now = options.now ?? (() => performance.now());
   const yieldToEventLoop = options.yield ?? defaultYield;
   const yieldEveryMs = options.yieldEveryMs ?? DEFAULT_YIELD_EVERY_MS;
+  const shouldStop = options.shouldStop ?? (() => false);
 
   let lastYield = now();
   let index = 0;
   for (const item of items) {
+    if (shouldStop()) return;
     await fn(item, index);
     index += 1;
     if (now() - lastYield >= yieldEveryMs) {
