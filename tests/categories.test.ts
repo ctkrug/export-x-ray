@@ -177,4 +177,33 @@ describe("accumulateCategory", () => {
 
     expect(updates).toBe(3);
   });
+
+  it("stops decompressing further sidecar files once the abort signal fires", async () => {
+    const zip = await buildZip({
+      "Takeout/Google Photos/2020/a.jpg": "binary",
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1583020800" },
+      }),
+      "Takeout/Google Photos/2020/b.jpg": "binary",
+      "Takeout/Google Photos/2020/b.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1583020800" },
+      }),
+    });
+    const paths = Object.keys(zip.files);
+    const controller = new AbortController();
+    controller.abort();
+
+    const result = await accumulateCategory(
+      getDefinition("photos"),
+      zip,
+      paths,
+      () => {},
+      controller.signal,
+    );
+
+    // countPaths (the media files themselves) are still counted immediately —
+    // only the sidecar decompression loop is short-circuited by the signal.
+    expect(result.recordCount).toBe(2);
+    expect(result.dateRange).toEqual({ earliestMs: null, latestMs: null });
+  });
 });
