@@ -3,7 +3,7 @@ import { detectProvider } from "./detect";
 import type { ArchiveSummary } from "../types";
 
 /** Reads an export zip entirely client-side and produces a headline summary. */
-export async function summarizeArchive(file: File | Blob): Promise<ArchiveSummary> {
+export async function summarizeArchive(file: Blob | ArrayBuffer): Promise<ArchiveSummary> {
   const zip = await JSZip.loadAsync(file);
   const paths = Object.keys(zip.files);
 
