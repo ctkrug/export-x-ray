@@ -23,22 +23,25 @@ archive it, or delete the account it came from.
 - **Detects the export format** automatically from the archive's structure (Takeout's per-product
   folders, Facebook's `your_activity_across_facebook` layout, Spotify's `MyData` extended
   streaming history, etc).
-- **Renders a live summary as it parses** — counts, date ranges, and per-category breakdowns
-  appear incrementally instead of waiting for the whole archive to finish.
+- **Renders a live summary as it parses** — a fast, decompression-free first pass shows file
+  counts and category presence within about a second of dropping the file, then per-category
+  record counts and date ranges stream in as the archive is decompressed in the background.
 - **Surfaces the headline numbers**: total time span covered, record counts by category, the
   oldest and newest items found, and which of the export's expected categories are present, thin,
   or missing entirely.
+- **Stays responsive on large archives** — parsing runs in yielding chunks rather than one
+  blocking pass, and a Cancel control stays live the whole time.
+- **Google Takeout support today**: Location History (both the flat Records.json and the older
+  Semantic Location History layout), Google Photos metadata (count plus oldest/newest capture
+  date), Search history, and YouTube watch/search history.
 
 ## Planned features
 
-- Google Takeout support: Location History, Photos metadata, Search history, YouTube history,
-  Gmail (headers/metadata only), Chrome history.
 - Facebook export support: posts, messages, photos/videos, comments, ads interests.
 - Spotify export support: streaming history, playlists, library, extended streaming history.
-- A category breakdown view with counts, date ranges, and rough size-on-disk per category.
+- Gmail (headers/metadata only) and Chrome history parsing for Google Takeout.
 - A timeline view showing data density across the years covered by the export.
 - Export a summary report (JSON/Markdown) of the analysis for your own records.
-- Everything runs offline after the initial page load — no network calls once the app is open.
 
 ## Stack
 
@@ -50,14 +53,17 @@ archive it, or delete the account it came from.
 
 ## Status
 
-Early scaffold — see [`docs/VISION.md`](docs/VISION.md) for the full design and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for the build plan.
+The wow moment and the Google Takeout parsers are built and tested — see
+[`docs/VISION.md`](docs/VISION.md) for the full design and [`docs/BACKLOG.md`](docs/BACKLOG.md)
+for what's shipped versus planned. Facebook and Spotify support is next.
 
 ## Privacy
 
 This is the entire point of the project: your export never leaves your device. There is no
 upload endpoint, no telemetry, and no third-party script that could see your files. You can
-verify this yourself — open the network tab while using it.
+verify this yourself by opening the network tab while using it — and it's also backed by an
+automated test (`tests/privacy.test.ts`) that fails the build if a future change ever calls
+`fetch` or `XMLHttpRequest` during a parse.
 
 ## License
 
