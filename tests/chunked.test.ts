@@ -1,3 +1,4 @@
+import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { forEachChunked } from "../src/parsers/chunked";
 
@@ -108,5 +109,23 @@ describe("forEachChunked", () => {
       order.push(`end-${item}`);
     });
     expect(order).toEqual(["start-1", "end-1", "start-2", "end-2"]);
+  });
+
+  it("[property] visits exactly the items before shouldStop trips, for any stop point", async () => {
+    await fc.assert(
+      fc.asyncProperty(fc.array(fc.integer()), fc.nat(), async (items, stopAt) => {
+        const seen: number[] = [];
+        let count = 0;
+        await forEachChunked(
+          items,
+          (item) => {
+            seen.push(item);
+            count += 1;
+          },
+          { shouldStop: () => count >= stopAt },
+        );
+        expect(seen).toEqual(items.slice(0, Math.min(stopAt, items.length)));
+      }),
+    );
   });
 });
