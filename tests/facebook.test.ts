@@ -65,9 +65,7 @@ describe("parseFacebookMessagesFile", () => {
 
 describe("Facebook path matchers", () => {
   it("recognizes posts files under a posts folder", () => {
-    expect(isFacebookPostsPath("your_activity_across_facebook/posts/your_posts_1.json")).toBe(
-      true,
-    );
+    expect(isFacebookPostsPath("your_activity_across_facebook/posts/your_posts_1.json")).toBe(true);
     expect(isFacebookPostsPath("messages/inbox/friend_123/message_1.json")).toBe(false);
   });
 
