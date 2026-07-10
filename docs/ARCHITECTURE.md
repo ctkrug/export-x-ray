@@ -54,6 +54,8 @@ stale/cancelled run's callbacks can never clobber a newer run's rendered state.
 - `chunked.ts` — `forEachChunked` is the non-blocking iteration primitive: runs an async callback
   over a sequence, yielding to a macrotask whenever more than `yieldEveryMs` (default 150) has
   elapsed since the last yield. Clock and yield primitive are injectable for deterministic tests.
+  A `shouldStop` hook is checked before every item so a cancelled parse returns immediately
+  instead of walking the rest of a large sequence as a no-op.
 - `location-history.ts`, `photos.ts`, `activity-log.ts` — one parser per Takeout category, each
   taking raw file text (or, for Photos, a path) and returning `{ recordCount, timestamps }` (or,
   for Photos, path-matcher predicates plus a single-timestamp sidecar parser). These never touch
@@ -76,7 +78,13 @@ stale/cancelled run's callbacks can never clobber a newer run's rendered state.
   back through a callback. Most categories: one matched file contains many records (count comes
   from parsing). Takeout Photos: one matched _media_ file _is_ one record (count is exact from path
   names alone), while sidecar JSON files are decompressed only to source dates — so a photo missing
-  its sidecar is still counted but doesn't skew the range.
+  its sidecar is still counted but doesn't skew the range. `accumulateCategory`'s progress callback
+  is throttled to once per ~150ms (matching `forEachChunked`'s own yield cadence, with a forced
+  final call once the category finishes) — a category with thousands of small files would
+  otherwise trigger a full stat/category DOM rebuild once per file, and that backlog of
+  synchronous render work is what actually made Cancel feel unresponsive on a large archive, not
+  the parsing itself. `now` is an injectable clock for deterministic tests, same pattern as
+  `chunked.ts`.
 - `summarize.ts` — orchestrates the whole flow (see Data flow above), picks the right category
   registry for the detected provider (empty list for `unknown`), and exposes `summarizeArchive`,
   `SummarizeOptions` (`onProgress`, `signal`), and `SummarizeAbortError`. All three providers'
