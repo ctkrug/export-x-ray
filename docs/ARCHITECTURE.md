@@ -95,7 +95,12 @@ since both are photo/video categories), `CategoryStatus` (`present` / `thin` / `
   list; `formatProviderLabel`/`formatCategoryCount`/`formatCount` handle display strings.
 - `render.ts` — DOM renderers (`renderStatTiles`, `renderCategoryChips`) that build elements via
   `createElement`/`textContent`, never `innerHTML` with interpolated data — tile/chip values can
-  include folder or file names from the user's own (untrusted) archive.
+  include folder or file names from the user's own (untrusted) archive. `renderStatTiles`
+  reconciles by a `data-label` key instead of blindly replacing the grid's children: a large
+  archive re-renders on every ~150ms progress tick, and a browser restarts a running CSS animation
+  on any element that's detached and reattached (even briefly, even back to the same position), so
+  a naive full replace kept every tile's pop-in animation restarting and its opacity stuck near 0
+  for the whole parse. Only a tile whose element isn't already in the right position gets touched.
 - `favicon.ts` — generates the favicon as an inline SVG data URI at runtime (`buildFaviconDataUri`)
   and injects it (`injectFavicon`); no binary asset in the repo.
 - `export-report.ts` — `buildSummaryReport`/`buildReportFilename` are pure JSON serialization
@@ -106,7 +111,10 @@ since both are photo/video categories), `CategoryStatus` (`present` / `thin` / `
   latest rendered `ArchiveSummary` so the export button can always download exactly what's on
   screen. Exports `initApp(root)` so tests can mount and drive the whole UI through jsdom without
   relying on the module's top-level side effect (which only runs `initApp` when a real `#app`
-  element exists in the document, so importing `main.ts` in a test doesn't require one).
+  element exists in the document, so importing `main.ts` in a test doesn't require one). The error
+  state is a self-contained sibling of the dropzone/dashboard (icon, title, message, its own Try
+  again button) rather than reusing a control buried inside the hidden `#dashboard` — a shared
+  control only "works" if its container is also visible.
 
 ## Design system
 
