@@ -27,4 +27,4 @@ yarn-error.log*
 
 # sample export archives (may contain real personal data during manual testing)
 *.zip
-!fixtures/**/*.zip
+!tests/fixtures/**/*.zip
