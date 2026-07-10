@@ -143,4 +143,17 @@ describe("buildStatTiles", () => {
       value: "Takeout",
     });
   });
+
+  it("shows an em dash for the top-level entries tile when the archive is entirely empty", () => {
+    const tiles = buildStatTiles({
+      ...baseSummary,
+      provider: "unknown",
+      topLevelEntries: [],
+      categories: [],
+    });
+    expect(tiles.find((t) => t.label === "Top-level entries")).toEqual({
+      label: "Top-level entries",
+      value: "—",
+    });
+  });
 });
