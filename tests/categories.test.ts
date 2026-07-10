@@ -113,4 +113,68 @@ describe("accumulateCategory", () => {
     expect(result.dateRange.earliestMs).toBe(1583020800000);
     expect(result.dateRange.latestMs).toBe(1583020800000);
   });
+
+  it("throttles onUpdate to one per-file emit plus a final forced emit when the clock is frozen", async () => {
+    const zip = await buildZip({
+      "Takeout/Google Photos/2020/a.jpg": "binary",
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1" },
+      }),
+      "Takeout/Google Photos/2020/b.jpg": "binary",
+      "Takeout/Google Photos/2020/b.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "2" },
+      }),
+      "Takeout/Google Photos/2020/c.jpg": "binary",
+      "Takeout/Google Photos/2020/c.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "3" },
+      }),
+    });
+    const paths = Object.keys(zip.files);
+    let updates = 0;
+
+    await accumulateCategory(
+      getDefinition("photos"),
+      zip,
+      paths,
+      () => {
+        updates += 1;
+      },
+      undefined,
+      () => 0,
+    );
+
+    // Three sidecar files decompress, but with the clock frozen only the very
+    // first per-file emit clears the throttle window; the rest are
+    // coalesced away until the loop's own final (forced) emit.
+    expect(updates).toBe(2);
+  });
+
+  it("emits every update when the clock clears the throttle window each time", async () => {
+    const zip = await buildZip({
+      "Takeout/Google Photos/2020/a.jpg": "binary",
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1" },
+      }),
+      "Takeout/Google Photos/2020/b.jpg": "binary",
+      "Takeout/Google Photos/2020/b.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "2" },
+      }),
+    });
+    const paths = Object.keys(zip.files);
+    let clock = 0;
+    let updates = 0;
+
+    await accumulateCategory(
+      getDefinition("photos"),
+      zip,
+      paths,
+      () => {
+        updates += 1;
+      },
+      undefined,
+      () => (clock += 200),
+    );
+
+    expect(updates).toBe(3);
+  });
 });
