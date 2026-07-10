@@ -59,6 +59,21 @@ const APP_MARKUP = `
       <div id="category-list" class="category-list"></div>
     </div>
     <div id="error-panel" class="error-panel" role="alert" hidden>
+      <svg
+        class="error-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <path
+          d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      <p class="error-title">Couldn't read this archive</p>
       <p id="error-message" class="error-message"></p>
       <button id="error-retry-button" class="ghost-button" type="button">Try again</button>
     </div>
@@ -147,7 +162,7 @@ export function initApp(app: HTMLElement): void {
     dashboard.hidden = true;
     lightbox.classList.remove("is-scanning");
     errorPanel.hidden = false;
-    errorMessage.textContent = `Couldn't read this archive: ${message}`;
+    errorMessage.textContent = message;
     exportButton.hidden = true;
     cancelButton.hidden = true;
   }
