@@ -58,8 +58,26 @@ export function renderStatTiles(container: HTMLElement, tiles: StatTile[]): void
   }
 }
 
-/** Replaces the category list's contents with one status chip per category. */
+/**
+ * Replaces the category list's contents with one status chip per category.
+ * An empty list means the archive didn't match a known provider layout (an
+ * unrecognized export still has a non-empty file list, just no categories to
+ * break it down into) -- render an explanatory empty state instead of
+ * leaving a blank gap under the stat tiles.
+ */
 export function renderCategoryChips(container: HTMLElement, categories: CategorySummary[]): void {
+  if (categories.length === 0) {
+    container.classList.add("is-empty");
+    const empty = document.createElement("p");
+    empty.className = "category-empty-state";
+    empty.textContent =
+      "This doesn't match a known Google Takeout, Facebook, or Spotify layout, so there's no " +
+      "category breakdown -- see the top-level entries above for what was found.";
+    container.replaceChildren(empty);
+    return;
+  }
+  container.classList.remove("is-empty");
+
   const nodes = categories.map((category) => {
     const chip = document.createElement("div");
     chip.className = `category-chip status-${category.status}`;
