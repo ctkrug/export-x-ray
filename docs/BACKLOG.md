@@ -95,7 +95,7 @@ reachable before anything else is built.
   - Dropping a corrupted zip (truncated bytes) shows an inline error distinguishing "couldn't
     read this file" from a successful empty result.
 
-- [ ] **4.2 Downloadable summary report**
+- [x] **4.2 Downloadable summary report**
       Let the user save the generated summary as a JSON or Markdown file for their own records.
   - Clicking "export summary" downloads a file containing the same category counts and date
     ranges currently shown on screen.
