@@ -38,6 +38,14 @@ describe("parseTimestamp", () => {
     expect(parseTimestamp(undefined)).toBeNull();
     expect(parseTimestamp(null)).toBeNull();
   });
+
+  it("returns null for a digit string so large it overflows to Infinity", () => {
+    expect(parseTimestamp("1".padEnd(400, "0"))).toBeNull();
+  });
+
+  it("returns null for a whitespace-only string", () => {
+    expect(parseTimestamp("   ")).toBeNull();
+  });
 });
 
 describe("mergeTimestamp", () => {
