@@ -204,6 +204,33 @@ describe("summarizeArchive", () => {
     expect(byKey.library?.dateRange).toEqual({ earliestMs: null, latestMs: null });
   });
 
+  it("handles a large number of small Photos files without hanging or losing counts", async () => {
+    const entries: Record<string, string> = {};
+    const fileCount = 500;
+    for (let i = 0; i < fileCount; i += 1) {
+      entries[`Takeout/Google Photos/2020/IMG_${i}.jpg`] = "binary";
+      entries[`Takeout/Google Photos/2020/IMG_${i}.jpg.json`] = JSON.stringify({
+        photoTakenTime: { timestamp: String(1583020800 + i) },
+      });
+    }
+    const archive = await buildZip(entries);
+
+    const progressSnapshots: number[] = [];
+    const summary = await summarizeArchive(archive, {
+      onProgress: (partial) => {
+        progressSnapshots.push(partial.categories.length);
+      },
+    });
+
+    const photos = summary.categories.find((c) => c.key === "photos");
+    expect(photos?.recordCount).toBe(fileCount);
+    expect(photos?.status).toBe("present");
+    // The emit throttle (categories.ts) should coalesce updates well below one
+    // per file — this is the exact mechanism that keeps the UI thread free
+    // enough for Cancel to stay responsive on a large archive.
+    expect(progressSnapshots.length).toBeLessThan(fileCount);
+  });
+
   it("produces the same ArchiveSummary shape across all three providers", async () => {
     const takeout = await summarizeArchive(
       await buildZip({ "Takeout/YouTube/history.json": "[]" }),
