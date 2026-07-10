@@ -122,6 +122,27 @@ describe("summarizeArchive", () => {
     );
   });
 
+  it("rejects with SummarizeAbortError when aborted mid-parse, between categories", async () => {
+    const archive = await buildZip({
+      "Takeout/Location History (Timeline)/Records.json": JSON.stringify({ locations: [] }),
+      "Takeout/YouTube and YouTube Music/history/watch-history.json": "[]",
+    });
+    const controller = new AbortController();
+    let onProgressCalls = 0;
+
+    await expect(
+      summarizeArchive(archive, {
+        signal: controller.signal,
+        onProgress: () => {
+          onProgressCalls += 1;
+          // Abort partway through, after the fast initial pass has already
+          // fired but before every category has finished accumulating.
+          if (onProgressCalls === 2) controller.abort();
+        },
+      }),
+    ).rejects.toThrow("archive parsing was cancelled");
+  });
+
   it("surfaces a clear error for a non-zip file instead of throwing JSZip's raw message", async () => {
     const notAZip = new TextEncoder().encode("plain text, not a zip").buffer;
     await expect(summarizeArchive(notAZip)).rejects.toThrow(
