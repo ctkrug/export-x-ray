@@ -57,10 +57,10 @@ archive it, or delete the account it came from.
 
 ## Status
 
-The wow moment, all three providers' parsers, and a downloadable summary report are built and
-tested — see [`docs/VISION.md`](docs/VISION.md) for the full design and
-[`docs/BACKLOG.md`](docs/BACKLOG.md) for what's shipped versus planned. A design/responsive audit
-is next.
+All v1 stories are built and tested: the wow moment, all three providers' parsers, a downloadable
+summary report, and a design/responsive audit across 390/768/1440px — see
+[`docs/VISION.md`](docs/VISION.md) for the full design and [`docs/BACKLOG.md`](docs/BACKLOG.md) for
+what's shipped versus planned.
 
 ## Privacy
 
