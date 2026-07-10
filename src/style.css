@@ -417,23 +417,37 @@ input {
 }
 
 .error-panel {
+  flex: 1;
   margin: var(--space-3);
-  padding: var(--space-3);
+  padding: var(--space-6) var(--space-3);
   border-radius: var(--radius-control);
   background: rgba(232, 96, 122, 0.08);
   border: 1px solid rgba(232, 96, 122, 0.3);
   color: var(--danger);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
   gap: var(--space-2);
   font-size: 0.9rem;
 }
 
+.error-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.error-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--danger);
+}
+
 .error-message {
-  flex: 1 1 auto;
-  min-width: 20ch;
+  color: var(--danger);
+  max-width: 50ch;
 }
 
 .error-panel .ghost-button {
