@@ -58,7 +58,10 @@ const APP_MARKUP = `
       <div id="stat-grid" class="stat-grid" role="status" aria-live="polite"></div>
       <div id="category-list" class="category-list"></div>
     </div>
-    <div id="error-panel" class="error-panel" role="alert" hidden></div>
+    <div id="error-panel" class="error-panel" role="alert" hidden>
+      <p id="error-message" class="error-message"></p>
+      <button id="error-retry-button" class="ghost-button" type="button">Try again</button>
+    </div>
   </main>
 `;
 
@@ -98,6 +101,14 @@ export function initApp(app: HTMLElement): void {
     app.querySelector<HTMLDivElement>("#error-panel"),
     "#error-panel",
   );
+  const errorMessage = requireElement(
+    app.querySelector<HTMLParagraphElement>("#error-message"),
+    "#error-message",
+  );
+  const errorRetryButton = requireElement(
+    app.querySelector<HTMLButtonElement>("#error-retry-button"),
+    "#error-retry-button",
+  );
 
   let controller: AbortController | null = null;
   let activeToken = 0;
@@ -136,9 +147,8 @@ export function initApp(app: HTMLElement): void {
     dashboard.hidden = true;
     lightbox.classList.remove("is-scanning");
     errorPanel.hidden = false;
-    errorPanel.textContent = `Couldn't read this archive: ${message}`;
+    errorMessage.textContent = `Couldn't read this archive: ${message}`;
     exportButton.hidden = true;
-    resetButton.hidden = false;
     cancelButton.hidden = true;
   }
 
@@ -212,6 +222,7 @@ export function initApp(app: HTMLElement): void {
   });
 
   resetButton.addEventListener("click", showIdle);
+  errorRetryButton.addEventListener("click", showIdle);
 
   exportButton.addEventListener("click", () => {
     if (currentSummary) downloadReport(currentSummary);
