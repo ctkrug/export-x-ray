@@ -6,7 +6,16 @@ export interface DateRange {
   latestMs: number | null;
 }
 
-export type CategoryKey = "location" | "photos" | "search" | "youtube";
+export type CategoryKey =
+  | "location"
+  | "photos"
+  | "search"
+  | "youtube"
+  | "posts"
+  | "messages"
+  | "streaming"
+  | "playlists"
+  | "library";
 
 export type CategoryStatus = "present" | "thin" | "missing";
 
