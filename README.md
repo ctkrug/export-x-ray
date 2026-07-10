@@ -31,17 +31,21 @@ archive it, or delete the account it came from.
   or missing entirely.
 - **Stays responsive on large archives** — parsing runs in yielding chunks rather than one
   blocking pass, and a Cancel control stays live the whole time.
-- **Google Takeout support today**: Location History (both the flat Records.json and the older
-  Semantic Location History layout), Google Photos metadata (count plus oldest/newest capture
-  date), Search history, and YouTube watch/search history.
+- **Google Takeout support**: Location History (both the flat Records.json and the older Semantic
+  Location History layout), Google Photos metadata (count plus oldest/newest capture date), Search
+  history, and YouTube watch/search history.
+- **Facebook support**: posts, Messenger threads, and photos/videos, each with a record count and
+  date range.
+- **Spotify support**: streaming history (play count and date range), playlists (playlist count),
+  and saved library (track count).
+- **Export the summary** as a JSON file for your own records, via the "Export summary" button once
+  a result is in.
 
 ## Planned features
 
-- Facebook export support: posts, messages, photos/videos, comments, ads interests.
-- Spotify export support: streaming history, playlists, library, extended streaming history.
 - Gmail (headers/metadata only) and Chrome history parsing for Google Takeout.
+- Facebook comments and ads-interests categories; Spotify extended streaming history.
 - A timeline view showing data density across the years covered by the export.
-- Export a summary report (JSON/Markdown) of the analysis for your own records.
 
 ## Stack
 
@@ -53,9 +57,10 @@ archive it, or delete the account it came from.
 
 ## Status
 
-The wow moment and the Google Takeout parsers are built and tested — see
-[`docs/VISION.md`](docs/VISION.md) for the full design and [`docs/BACKLOG.md`](docs/BACKLOG.md)
-for what's shipped versus planned. Facebook and Spotify support is next.
+The wow moment, all three providers' parsers, and a downloadable summary report are built and
+tested — see [`docs/VISION.md`](docs/VISION.md) for the full design and
+[`docs/BACKLOG.md`](docs/BACKLOG.md) for what's shipped versus planned. A design/responsive audit
+is next.
 
 ## Privacy
 
