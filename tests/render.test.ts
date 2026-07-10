@@ -96,4 +96,23 @@ describe("renderCategoryChips", () => {
     renderCategoryChips(container, []);
     expect(container.querySelectorAll(".category-chip").length).toBe(0);
   });
+
+  it("renders an explanatory empty state instead of a blank gap for an unknown provider", () => {
+    const container = document.createElement("div");
+    renderCategoryChips(container, []);
+
+    expect(container.classList.contains("is-empty")).toBe(true);
+    expect(container.querySelector(".category-empty-state")?.textContent).toContain(
+      "doesn't match a known",
+    );
+  });
+
+  it("clears the empty state once real categories render", () => {
+    const container = document.createElement("div");
+    renderCategoryChips(container, []);
+    renderCategoryChips(container, [photos]);
+
+    expect(container.classList.contains("is-empty")).toBe(false);
+    expect(container.querySelector(".category-empty-state")).toBeNull();
+  });
 });
