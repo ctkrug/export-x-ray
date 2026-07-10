@@ -3,12 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Export X-Ray</title>
+    <title>Export X-Ray - See what's inside your data export</title>
     <meta
       name="description"
-      content="Drag in your Google Takeout, Facebook, or Spotify export and get an instant, private, client-side summary of what's inside."
+      content="See what's inside your Google Takeout, Facebook, or Spotify export in seconds. Runs entirely in your browser; the zip never leaves your device."
     />
     <meta name="theme-color" content="#0a0d12" />
+    <meta property="og:title" content="Export X-Ray - See what's inside your data export" />
+    <meta
+      property="og:description"
+      content="Drop in a Google Takeout, Facebook, or Spotify export and get an instant, private summary of what's inside. Nothing is uploaded."
+    />
+    <meta property="og:type" content="website" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,6 +25,75 @@
   </head>
   <body>
     <div id="app"></div>
+
+    <section class="learn" aria-labelledby="learn-heading">
+      <h2 id="learn-heading" class="learn-heading">What is inside a data export?</h2>
+      <p>
+        When you click "Download my data" on Google Takeout, Facebook, or Spotify, you get a zip
+        with anywhere from a few hundred to tens of thousands of files: nested JSON, HTML, CSV, and
+        media, named after internal product codenames, with no index and no summary. Export X-Ray
+        reads that archive in your browser and answers the first question you actually have: what is
+        in here, and how much of it is there?
+      </p>
+      <p>
+        Drop the zip on the panel above and Export X-Ray detects which service produced it, then
+        shows the headline numbers as it parses: the total time span the data covers, record counts
+        per category (location points, photos, messages, plays, and so on), the oldest and newest
+        items found, and which of that service's expected categories are present, thin, or missing.
+        It is built for the moment right after you request an export, when you are deciding whether
+        to keep it, migrate it, or delete the account it came from.
+      </p>
+      <p>
+        Everything runs client-side. There is no upload endpoint, no account, and no analytics. You
+        can open your browser's network tab while using it and watch it make zero requests with your
+        data, and an automated test in the repo fails the build if a future change ever tries.
+      </p>
+
+      <h2 class="learn-heading">Questions people ask</h2>
+      <dl class="faq">
+        <dt>Is my data uploaded anywhere?</dt>
+        <dd>
+          No. The archive is read entirely in your browser with JSZip. It never leaves your device,
+          and no server ever sees it. That is the whole point of the tool.
+        </dd>
+
+        <dt>Which exports does it support?</dt>
+        <dd>
+          Google Takeout (Location History, Google Photos metadata, Search, and YouTube history),
+          Facebook (posts, Messenger threads, photos and videos), and Spotify (streaming history,
+          playlists, and saved library). An unrecognized archive still gets a file count and a list
+          of its top-level folders rather than an error.
+        </dd>
+
+        <dt>How big an export can it handle?</dt>
+        <dd>
+          Large ones. Parsing runs in yielding chunks so the page stays responsive on archives with
+          thousands of files, and a Cancel control stays live the whole time.
+        </dd>
+
+        <dt>Can I save the summary?</dt>
+        <dd>
+          Yes. Once a result is in, the "Export summary" button downloads the whole breakdown as a
+          JSON file for your own records.
+        </dd>
+
+        <dt>Does it read the contents of my messages or photos?</dt>
+        <dd>
+          No. It counts records and reads timestamps to build the summary. It does not surface
+          message text, photo pixels, or any other content.
+        </dd>
+      </dl>
+    </section>
+
+    <footer class="site-footer">
+      <a class="footer-cta" href="https://github.com/ctkrug/export-x-ray"
+        >View the source on GitHub</a
+      >
+      <a class="footer-portfolio" href="https://apps.charliekrug.com"
+        >More by Charlie Krug &rarr; apps.charliekrug.com</a
+      >
+    </footer>
+
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>
