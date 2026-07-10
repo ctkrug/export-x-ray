@@ -1,8 +1,22 @@
 import JSZip from "jszip";
 import { detectProvider } from "./detect";
-import { TAKEOUT_CATEGORY_DEFINITIONS, accumulateCategory, initialCategorySummary } from "./categories";
+import {
+  FACEBOOK_CATEGORY_DEFINITIONS,
+  SPOTIFY_CATEGORY_DEFINITIONS,
+  TAKEOUT_CATEGORY_DEFINITIONS,
+  accumulateCategory,
+  initialCategorySummary,
+} from "./categories";
 import { EMPTY_DATE_RANGE, unionDateRanges } from "./date-utils";
-import type { ArchiveSummary, CategorySummary } from "../types";
+import type { ArchiveSummary, CategorySummary, ExportProvider } from "../types";
+
+const CATEGORY_DEFINITIONS_BY_PROVIDER: Partial<
+  Record<ExportProvider, typeof TAKEOUT_CATEGORY_DEFINITIONS>
+> = {
+  "google-takeout": TAKEOUT_CATEGORY_DEFINITIONS,
+  facebook: FACEBOOK_CATEGORY_DEFINITIONS,
+  spotify: SPOTIFY_CATEGORY_DEFINITIONS,
+};
 
 export interface SummarizeOptions {
   /** Called with a snapshot of the summary every time new data becomes available. */
@@ -54,24 +68,22 @@ export async function summarizeArchive(
     ),
   ];
   const provider = detectProvider(topLevelEntries);
+  const categoryDefs = CATEGORY_DEFINITIONS_BY_PROVIDER[provider] ?? [];
 
   const summary: ArchiveSummary = {
     provider,
     fileCount: paths.length,
     topLevelEntries,
     dateRange: EMPTY_DATE_RANGE,
-    categories:
-      provider === "google-takeout"
-        ? TAKEOUT_CATEGORY_DEFINITIONS.map((def) => initialCategorySummary(def, paths))
-        : [],
+    categories: categoryDefs.map((def) => initialCategorySummary(def, paths)),
   };
   options.onProgress?.(cloneSummary(summary));
 
-  if (provider !== "google-takeout") {
+  if (categoryDefs.length === 0) {
     return summary;
   }
 
-  for (const def of TAKEOUT_CATEGORY_DEFINITIONS) {
+  for (const def of categoryDefs) {
     checkAborted(options.signal);
 
     const updated = await accumulateCategory(
