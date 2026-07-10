@@ -2,11 +2,32 @@ import { formatCategoryCount } from "./format";
 import type { CategorySummary } from "../types";
 import type { StatTile } from "./format";
 
-/** Replaces the stat grid's contents with one tile per entry, each animating in. */
+/**
+ * Renders one tile per entry, reusing an existing element for a label that's
+ * already on screen (updating just its value) rather than recreating it. A
+ * fresh archive parse re-renders the grid on every progress tick, and a tile
+ * that's rebuilt from scratch each time restarts its pop-in animation -- for
+ * long-lived tiles like "Files found" that update many times a second, that
+ * reads as a flicker instead of a value ticking up in place.
+ */
 export function renderStatTiles(container: HTMLElement, tiles: StatTile[]): void {
+  const existingByLabel = new Map<string, HTMLElement>();
+  for (const child of Array.from(container.children)) {
+    const label = child.getAttribute("data-label");
+    if (label) existingByLabel.set(label, child as HTMLElement);
+  }
+
   const nodes = tiles.map((tile) => {
+    const reused = existingByLabel.get(tile.label);
+    if (reused) {
+      const value = reused.querySelector<HTMLElement>(".stat-value");
+      if (value) value.textContent = tile.value;
+      return reused;
+    }
+
     const el = document.createElement("div");
     el.className = "stat-tile";
+    el.setAttribute("data-label", tile.label);
 
     const label = document.createElement("span");
     label.className = "stat-label";
