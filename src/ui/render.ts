@@ -3,12 +3,15 @@ import type { CategorySummary } from "../types";
 import type { StatTile } from "./format";
 
 /**
- * Renders one tile per entry, reusing an existing element for a label that's
- * already on screen (updating just its value) rather than recreating it. A
- * fresh archive parse re-renders the grid on every progress tick, and a tile
- * that's rebuilt from scratch each time restarts its pop-in animation -- for
- * long-lived tiles like "Files found" that update many times a second, that
- * reads as a flicker instead of a value ticking up in place.
+ * Renders one tile per entry, leaving an already-correctly-positioned tile's
+ * element completely untouched rather than recreating (or even just moving)
+ * it. A fresh archive parse re-renders the grid on every progress tick; a
+ * browser restarts an element's CSS animation whenever it's detached and
+ * reattached to the DOM, which `replaceChildren`/`insertBefore` both do even
+ * when the node ends up back in the same spot. Without this, a tile's
+ * 220ms pop-in animation keeps restarting every ~150ms on a large archive
+ * and the tile never finishes fading in -- exactly during the wow-moment
+ * live fill this is meant to showcase.
  */
 export function renderStatTiles(container: HTMLElement, tiles: StatTile[]): void {
   const existingByLabel = new Map<string, HTMLElement>();
@@ -17,31 +20,42 @@ export function renderStatTiles(container: HTMLElement, tiles: StatTile[]): void
     if (label) existingByLabel.set(label, child as HTMLElement);
   }
 
-  const nodes = tiles.map((tile) => {
-    const reused = existingByLabel.get(tile.label);
-    if (reused) {
-      const value = reused.querySelector<HTMLElement>(".stat-value");
+  let cursor = container.firstChild;
+  for (const tile of tiles) {
+    const existing = existingByLabel.get(tile.label);
+    let el: HTMLElement;
+
+    if (existing) {
+      const value = existing.querySelector<HTMLElement>(".stat-value");
       if (value) value.textContent = tile.value;
-      return reused;
+      existingByLabel.delete(tile.label);
+      el = existing;
+    } else {
+      el = document.createElement("div");
+      el.className = "stat-tile";
+      el.setAttribute("data-label", tile.label);
+
+      const label = document.createElement("span");
+      label.className = "stat-label";
+      label.textContent = tile.label;
+
+      const value = document.createElement("span");
+      value.className = "stat-value";
+      value.textContent = tile.value;
+
+      el.append(label, value);
     }
 
-    const el = document.createElement("div");
-    el.className = "stat-tile";
-    el.setAttribute("data-label", tile.label);
+    if (cursor === el) {
+      cursor = cursor.nextSibling;
+    } else {
+      container.insertBefore(el, cursor);
+    }
+  }
 
-    const label = document.createElement("span");
-    label.className = "stat-label";
-    label.textContent = tile.label;
-
-    const value = document.createElement("span");
-    value.className = "stat-value";
-    value.textContent = tile.value;
-
-    el.append(label, value);
-    return el;
-  });
-
-  container.replaceChildren(...nodes);
+  for (const stale of existingByLabel.values()) {
+    stale.remove();
+  }
 }
 
 /** Replaces the category list's contents with one status chip per category. */
