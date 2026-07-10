@@ -12,6 +12,9 @@
     "typecheck": "tsc --noEmit"
   },
   "license": "MIT",
+  "engines": {
+    "node": "^18.19.0 || >=20.9.0"
+  },
   "dependencies": {
     "jszip": "^3.10.1"
   },
