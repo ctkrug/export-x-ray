@@ -43,4 +43,10 @@ describe("parseActivityLogFile", () => {
     expect(result.recordCount).toBe(1);
     expect(result.timestamps).toEqual([null]);
   });
+
+  it("emits null instead of throwing for array entries that aren't objects", () => {
+    const result = parseActivityLogFile(JSON.stringify([null, "garbage", 42, { time: "2020-03-01T00:00:00Z" }]));
+    expect(result.recordCount).toBe(4);
+    expect(result.timestamps).toEqual([null, null, null, Date.parse("2020-03-01T00:00:00Z")]);
+  });
 });
