@@ -105,7 +105,7 @@ reachable before anything else is built.
   - A test (e.g. intercepting `fetch`/`XMLHttpRequest` in a jsdom/browser test environment) fails
     the build if any network call fires during a full drop-to-summary run.
 
-- [ ] **4.4 Design polish & responsive audit**
+- [x] **4.4 Design polish & responsive audit**
       Bring the shipped UI in line with `docs/DESIGN.md`'s lightbox direction and confirm it holds up
       across breakpoints.
   - The app is visually reviewed at 390px, 768px, and 1440px widths with no horizontal scroll,
