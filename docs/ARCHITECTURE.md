@@ -21,6 +21,8 @@ File (drag/drop or file picker)
       → JSZip.loadAsync                                (throws → clear "couldn't read this
                                                           file as a zip archive" error)
       → detectProvider(topLevelEntries)                [src/parsers/detect.ts]
+      → categoryDefs = definitions for this provider     [src/parsers/categories.ts]
+                                                          (Takeout / Facebook / Spotify / none)
       → fast pass: initialCategorySummary per category  [src/parsers/categories.ts]
           (path-matching only, no decompression — this is what makes the first
            stat tile appear within ~1s of drop)
@@ -56,19 +58,36 @@ stale/cancelled run's callbacks can never clobber a newer run's rendered state.
   taking raw file text (or, for Photos, a path) and returning `{ recordCount, timestamps }` (or,
   for Photos, path-matcher predicates plus a single-timestamp sidecar parser). These never touch
   JSZip directly, so they're testable with plain strings.
-- `categories.ts` — the registry tying the above together. Each of the four categories
-  (`location` / `photos` / `search` / `youtube`) is a `CategoryDefinition`: path matchers plus a
-  parser. `initialCategorySummary` gives the instant, decompression-free first read;
-  `accumulateCategory` decompresses that category's matched files via `forEachChunked` and streams
-  real counts/date ranges back through a callback. Location/Search/YouTube: one matched file
-  contains many records (record count comes from parsing). Photos: one matched _media_ file _is_
-  one record (record count is exact from path names alone), while sidecar JSON files are decompressed
-  only to source dates — so a photo missing its sidecar is still counted but doesn't skew the range.
-- `summarize.ts` — orchestrates the whole flow (see Data flow above) and exposes
-  `summarizeArchive`, `SummarizeOptions` (`onProgress`, `signal`), and `SummarizeAbortError`.
+- `facebook.ts` — posts/photos parsers reuse `activity-log.ts`'s flat-array-with-timestamp shape
+  (keyed on `timestamp` and `creation_timestamp` respectively); `parseFacebookMessagesFile` is
+  bespoke since each Messenger thread file wraps a nested `messages` array keyed on
+  `timestamp_ms`. Path matchers key off folder name (`posts`, `messages`+`inbox`,
+  `photos_and_videos`).
+- `spotify.ts` — streaming history reuses `activity-log.ts` keyed on `endTime`; playlists and
+  library are bespoke (playlists count top-level playlists and source dates from each item's
+  `addedDate`; library has no per-track date, so only a count is available). Path matchers key off
+  Spotify's fixed export filenames (`StreamingHistory*.json`, `Playlist*.json`,
+  `YourLibrary.json`) since `MyData` exports files flat at the top level, not under folders.
+- `categories.ts` — three `CategoryDefinition` registries, one per provider
+  (`TAKEOUT_CATEGORY_DEFINITIONS`, `FACEBOOK_CATEGORY_DEFINITIONS`, `SPOTIFY_CATEGORY_DEFINITIONS`),
+  each a list of `{ key, label, thinThreshold, countPaths, dateSourcePaths, parseDateSource }`.
+  `initialCategorySummary` gives the instant, decompression-free first read; `accumulateCategory`
+  decompresses a category's matched files via `forEachChunked` and streams real counts/date ranges
+  back through a callback. Most categories: one matched file contains many records (count comes
+  from parsing). Takeout Photos: one matched _media_ file _is_ one record (count is exact from path
+  names alone), while sidecar JSON files are decompressed only to source dates — so a photo missing
+  its sidecar is still counted but doesn't skew the range.
+- `summarize.ts` — orchestrates the whole flow (see Data flow above), picks the right category
+  registry for the detected provider (empty list for `unknown`), and exposes `summarizeArchive`,
+  `SummarizeOptions` (`onProgress`, `signal`), and `SummarizeAbortError`. All three providers'
+  runs produce the same `ArchiveSummary`/`CategorySummary` shape (verified in
+  `tests/summarize.test.ts`), so the UI layer never branches on provider.
 
-**Types (`src/types.ts`)** — the shared contract: `ExportProvider`, `DateRange`, `CategoryKey`,
-`CategoryStatus` (`present` / `thin` / `missing`), `CategorySummary`, `ArchiveSummary`.
+**Types (`src/types.ts`)** — the shared contract: `ExportProvider`, `DateRange`, `CategoryKey`
+(`location`/`photos`/`search`/`youtube` for Takeout, `posts`/`messages`/`photos` for Facebook,
+`streaming`/`playlists`/`library` for Spotify — `photos` is shared across Takeout and Facebook
+since both are photo/video categories), `CategoryStatus` (`present` / `thin` / `missing`),
+`CategorySummary`, `ArchiveSummary`.
 
 **UI (`src/ui/`, `src/main.ts`)**:
 
@@ -79,11 +98,15 @@ stale/cancelled run's callbacks can never clobber a newer run's rendered state.
   include folder or file names from the user's own (untrusted) archive.
 - `favicon.ts` — generates the favicon as an inline SVG data URI at runtime (`buildFaviconDataUri`)
   and injects it (`injectFavicon`); no binary asset in the repo.
+- `export-report.ts` — `buildSummaryReport`/`buildReportFilename` are pure JSON serialization
+  (DOM-free, unit-testable directly); `downloadReport` is the thin DOM-touching wrapper (Blob +
+  throwaway object URL + temporary anchor click) that `main.ts`'s export button calls.
 - `main.ts` — wires it all together: builds the app markup, handles drag/drop/click/keyboard on
-  the dropzone, drives `summarizeArchive`, and renders progress/results/error states. Exports
-  `initApp(root)` so tests can mount and drive the whole UI through jsdom without relying on the
-  module's top-level side effect (which only runs `initApp` when a real `#app` element exists in
-  the document, so importing `main.ts` in a test doesn't require one).
+  the dropzone, drives `summarizeArchive`, and renders progress/results/error states, tracking the
+  latest rendered `ArchiveSummary` so the export button can always download exactly what's on
+  screen. Exports `initApp(root)` so tests can mount and drive the whole UI through jsdom without
+  relying on the module's top-level side effect (which only runs `initApp` when a real `#app`
+  element exists in the document, so importing `main.ts` in a test doesn't require one).
 
 ## Design system
 
