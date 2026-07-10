@@ -25,6 +25,33 @@ describe("renderStatTiles", () => {
     expect(container.querySelector(".stat-label")?.textContent).toBe("B");
   });
 
+  it("reuses the same element for a label that persists across renders", () => {
+    const container = document.createElement("div");
+    renderStatTiles(container, [{ label: "Files found", value: "1" }]);
+    const firstEl = container.querySelector(".stat-tile");
+
+    renderStatTiles(container, [{ label: "Files found", value: "2" }]);
+    const secondEl = container.querySelector(".stat-tile");
+
+    expect(secondEl).toBe(firstEl);
+    expect(secondEl?.querySelector(".stat-value")?.textContent).toBe("2");
+  });
+
+  it("animates in only the tiles that are new, leaving persisted tiles alone", () => {
+    const container = document.createElement("div");
+    renderStatTiles(container, [{ label: "Files found", value: "1" }]);
+    const persistedEl = container.querySelector(".stat-tile");
+
+    renderStatTiles(container, [
+      { label: "Files found", value: "1" },
+      { label: "Location points", value: "50" },
+    ]);
+
+    const tiles = container.querySelectorAll(".stat-tile");
+    expect(tiles.length).toBe(2);
+    expect(tiles[0]).toBe(persistedEl);
+  });
+
   it("renders an empty grid for an empty tile list", () => {
     const container = document.createElement("div");
     renderStatTiles(container, []);
