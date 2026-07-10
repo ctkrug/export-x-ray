@@ -62,6 +62,19 @@ describe("initApp", () => {
     });
   });
 
+  it("explains itself instead of showing a blank category list for an unrecognized archive", async () => {
+    const ui = mount();
+    const file = await buildZipFile({ "random/notes.txt": "hello" });
+
+    ui.dropzone.dispatchEvent(dropEvent(file));
+
+    await vi.waitFor(() => expect(ui.providerChip.textContent).toBe("Unknown export"));
+    const categoryList = ui.root.querySelector<HTMLDivElement>("#category-list")!;
+    await vi.waitFor(() => {
+      expect(categoryList.querySelector(".category-empty-state")).not.toBeNull();
+    });
+  });
+
   it("shows an inline error instead of crashing when a non-zip file is dropped", async () => {
     const ui = mount();
     const file = new File(["not a zip"], "notes.txt", { type: "text/plain" });
