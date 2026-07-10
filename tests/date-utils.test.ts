@@ -17,6 +17,11 @@ describe("parseTimestamp", () => {
     expect(parseTimestamp("1583020800")).toBe(1583020800000);
   });
 
+  it("treats the threshold value itself as milliseconds, not seconds (boundary is inclusive on the ms side)", () => {
+    expect(parseTimestamp(SECONDS_TO_MS_THRESHOLD)).toBe(SECONDS_TO_MS_THRESHOLD);
+    expect(parseTimestamp(SECONDS_TO_MS_THRESHOLD - 1)).toBe((SECONDS_TO_MS_THRESHOLD - 1) * 1000);
+  });
+
   it("treats a numeric string at or above the threshold as epoch milliseconds", () => {
     expect(parseTimestamp("1583020800000")).toBe(1583020800000);
   });
