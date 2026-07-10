@@ -1,4 +1,5 @@
 import { SummarizeAbortError, summarizeArchive } from "./parsers/summarize";
+import { downloadReport } from "./ui/export-report";
 import { injectFavicon } from "./ui/favicon";
 import { buildStatTiles, formatProviderLabel } from "./ui/format";
 import { renderCategoryChips, renderStatTiles } from "./ui/render";
@@ -47,6 +48,9 @@ const APP_MARKUP = `
       <div class="dashboard-toolbar">
         <span id="provider-chip" class="provider-chip"></span>
         <div class="toolbar-actions">
+          <button id="export-button" class="ghost-button" type="button" hidden>
+            Export summary
+          </button>
           <button id="cancel-button" class="ghost-button is-danger" type="button" hidden>Cancel</button>
           <button id="reset-button" class="ghost-button" type="button" hidden>New file</button>
         </div>
@@ -78,6 +82,10 @@ export function initApp(app: HTMLElement): void {
     app.querySelector<HTMLDivElement>("#category-list"),
     "#category-list",
   );
+  const exportButton = requireElement(
+    app.querySelector<HTMLButtonElement>("#export-button"),
+    "#export-button",
+  );
   const cancelButton = requireElement(
     app.querySelector<HTMLButtonElement>("#cancel-button"),
     "#cancel-button",
@@ -93,6 +101,7 @@ export function initApp(app: HTMLElement): void {
 
   let controller: AbortController | null = null;
   let activeToken = 0;
+  let currentSummary: ArchiveSummary | null = null;
 
   function showIdle(): void {
     activeToken += 1;
@@ -100,20 +109,24 @@ export function initApp(app: HTMLElement): void {
     dashboard.hidden = true;
     errorPanel.hidden = true;
     lightbox.classList.remove("is-scanning");
+    exportButton.hidden = true;
     cancelButton.hidden = true;
     resetButton.hidden = true;
     statGrid.replaceChildren();
     categoryList.replaceChildren();
     fileInput.value = "";
+    currentSummary = null;
   }
 
   function renderSummary(summary: ArchiveSummary, scanning: boolean): void {
     dropzone.hidden = true;
     dashboard.hidden = false;
     errorPanel.hidden = true;
+    currentSummary = summary;
     providerChip.textContent = formatProviderLabel(summary.provider);
     renderStatTiles(statGrid, buildStatTiles(summary));
     renderCategoryChips(categoryList, summary.categories);
+    exportButton.hidden = false;
     cancelButton.hidden = !scanning;
     resetButton.hidden = scanning;
   }
@@ -124,6 +137,7 @@ export function initApp(app: HTMLElement): void {
     lightbox.classList.remove("is-scanning");
     errorPanel.hidden = false;
     errorPanel.textContent = `Couldn't read this archive: ${message}`;
+    exportButton.hidden = true;
     resetButton.hidden = false;
     cancelButton.hidden = true;
   }
@@ -198,6 +212,10 @@ export function initApp(app: HTMLElement): void {
   });
 
   resetButton.addEventListener("click", showIdle);
+
+  exportButton.addEventListener("click", () => {
+    if (currentSummary) downloadReport(currentSummary);
+  });
 }
 
 const appRoot = document.querySelector<HTMLDivElement>("#app");
