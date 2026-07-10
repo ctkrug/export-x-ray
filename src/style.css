@@ -80,3 +80,41 @@ input {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-6) var(--space-3) var(--space-8);
+  gap: var(--space-4);
+}
+
+.hero-header {
+  width: min(90vw, 880px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3rem);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.wordmark-accent {
+  color: var(--accent);
+  text-shadow: 0 0 24px rgba(77, 216, 232, 0.5);
+}
+
+.explainer {
+  color: var(--text-muted);
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 60ch;
+  margin-inline: auto;
+}
