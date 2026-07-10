@@ -67,19 +67,19 @@ reachable before anything else is built.
 
 ## Epic 3 — Facebook & Spotify parsers
 
-- [ ] **3.1 Facebook export parser**
+- [x] **3.1 Facebook export parser**
       Parse a Facebook "Download Your Information" archive into counts and date ranges for posts,
       messages, and photos/videos.
   - Given a fixture Facebook export, the parser returns correct counts and date ranges for each
     of posts, messages, and photos/videos independently.
 
-- [ ] **3.2 Spotify export parser**
+- [x] **3.2 Spotify export parser**
       Parse a Spotify data export (streaming history, playlists, library) into counts and date
       ranges.
   - Given a fixture Spotify export, the parser returns correct streaming-history record count and
     date range, plus playlist and saved-track counts.
 
-- [ ] **3.3 Unified cross-provider summary contract**
+- [x] **3.3 Unified cross-provider summary contract**
       All three providers' parsers produce the same shape of summary object so the dashboard UI
       doesn't need provider-specific rendering branches for the headline view.
   - A Takeout, a Facebook, and a Spotify fixture archive each produce a summary object matching
