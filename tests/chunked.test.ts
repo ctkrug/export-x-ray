@@ -72,6 +72,34 @@ describe("forEachChunked", () => {
     expect(yields).toBe(0);
   });
 
+  it("stops visiting items as soon as shouldStop reports true", async () => {
+    const seen: number[] = [];
+    let stop = false;
+
+    await forEachChunked(
+      [1, 2, 3, 4, 5],
+      (item) => {
+        seen.push(item);
+        if (item === 2) stop = true;
+      },
+      { shouldStop: () => stop },
+    );
+
+    expect(seen).toEqual([1, 2]);
+  });
+
+  it("never calls fn when shouldStop is already true", async () => {
+    const seen: number[] = [];
+    await forEachChunked(
+      [1, 2, 3],
+      (item) => {
+        seen.push(item);
+      },
+      { shouldStop: () => true },
+    );
+    expect(seen).toEqual([]);
+  });
+
   it("awaits an async fn before moving to the next item", async () => {
     const order: string[] = [];
     await forEachChunked([1, 2], async (item) => {
