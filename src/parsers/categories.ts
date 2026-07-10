@@ -4,6 +4,22 @@ import { EMPTY_DATE_RANGE, mergeTimestamp } from "./date-utils";
 import { parseActivityLogFile } from "./activity-log";
 import { parseLocationHistoryFile } from "./location-history";
 import { isPhotoMediaPath, isPhotoSidecarPath, parsePhotoSidecar } from "./photos";
+import {
+  isFacebookMessagesPath,
+  isFacebookPhotosPath,
+  isFacebookPostsPath,
+  parseFacebookMessagesFile,
+  parseFacebookPhotosFile,
+  parseFacebookPostsFile,
+} from "./facebook";
+import {
+  isSpotifyLibraryPath,
+  isSpotifyPlaylistsPath,
+  isSpotifyStreamingHistoryPath,
+  parseSpotifyLibraryFile,
+  parseSpotifyPlaylistsFile,
+  parseSpotifyStreamingHistoryFile,
+} from "./spotify";
 import type { CategoryKey, CategoryStatus, CategorySummary, DateRange } from "../types";
 
 interface ParsedRecords {
@@ -76,6 +92,60 @@ export const TAKEOUT_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
           path.toLowerCase().endsWith(".json"),
       ),
     parseDateSource: (text) => parseActivityLogFile(text),
+  },
+];
+
+export const FACEBOOK_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
+  {
+    key: "posts",
+    label: "Posts",
+    thinThreshold: 10,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isFacebookPostsPath),
+    parseDateSource: parseFacebookPostsFile,
+  },
+  {
+    key: "messages",
+    label: "Messages",
+    thinThreshold: 10,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isFacebookMessagesPath),
+    parseDateSource: parseFacebookMessagesFile,
+  },
+  {
+    key: "photos",
+    label: "Photos & Videos",
+    thinThreshold: 10,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isFacebookPhotosPath),
+    parseDateSource: parseFacebookPhotosFile,
+  },
+];
+
+export const SPOTIFY_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
+  {
+    key: "streaming",
+    label: "Streaming History",
+    thinThreshold: 50,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isSpotifyStreamingHistoryPath),
+    parseDateSource: parseSpotifyStreamingHistoryFile,
+  },
+  {
+    key: "playlists",
+    label: "Playlists",
+    thinThreshold: 1,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isSpotifyPlaylistsPath),
+    parseDateSource: parseSpotifyPlaylistsFile,
+  },
+  {
+    key: "library",
+    label: "Saved Library",
+    thinThreshold: 10,
+    countPaths: () => [],
+    dateSourcePaths: (paths) => paths.filter(isSpotifyLibraryPath),
+    parseDateSource: parseSpotifyLibraryFile,
   },
 ];
 
