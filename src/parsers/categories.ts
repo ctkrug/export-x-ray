@@ -43,6 +43,9 @@ function isUnder(path: string, folderHint: string): boolean {
   return path.toLowerCase().includes(folderHint);
 }
 
+/** How often accumulateCategory reports progress while decompressing a category's files. */
+const EMIT_THROTTLE_MS = 150;
+
 export const TAKEOUT_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
   {
     key: "location",
@@ -200,6 +203,7 @@ export async function accumulateCategory(
   paths: readonly string[],
   onUpdate: (summary: CategorySummary) => void,
   signal?: AbortSignal,
+  now: () => number = () => performance.now(),
 ): Promise<CategorySummary> {
   const directPaths = def.countPaths(paths);
   const dateSources = def.dateSourcePaths(paths);
@@ -207,7 +211,18 @@ export async function accumulateCategory(
   let recordCount = directPaths.length;
   let dateRange: DateRange = EMPTY_DATE_RANGE;
 
-  const emit = (): void => {
+  // Throttled to the same ~150ms cadence forEachChunked yields at: a category
+  // with thousands of small files (e.g. Photos) would otherwise rebuild the
+  // whole stat/category DOM tree once per file, and that backlog of
+  // synchronous render work is what actually made Cancel feel unresponsive
+  // on a large archive -- not the parsing itself.
+  let lastEmitAt = -Infinity;
+
+  const emit = (force = false): void => {
+    const nowMs = now();
+    if (!force && nowMs - lastEmitAt < EMIT_THROTTLE_MS) return;
+    lastEmitAt = nowMs;
+
     const matchedFiles = directPaths.length + dateSources.length;
     onUpdate({
       key: def.key,
@@ -218,20 +233,23 @@ export async function accumulateCategory(
     });
   };
 
-  await forEachChunked(dateSources, async (path) => {
-    if (signal?.aborted) return;
-    const entry = zip.files[path];
-    if (!entry) return;
-    const text = await entry.async("string");
-    const parsed = def.parseDateSource(text);
-    recordCount += parsed.recordCount;
-    for (const timestamp of parsed.timestamps) {
-      dateRange = mergeTimestamp(dateRange, timestamp);
-    }
-    emit();
-  });
+  await forEachChunked(
+    dateSources,
+    async (path) => {
+      const entry = zip.files[path];
+      if (!entry) return;
+      const text = await entry.async("string");
+      const parsed = def.parseDateSource(text);
+      recordCount += parsed.recordCount;
+      for (const timestamp of parsed.timestamps) {
+        dateRange = mergeTimestamp(dateRange, timestamp);
+      }
+      emit();
+    },
+    { shouldStop: () => signal?.aborted ?? false },
+  );
 
-  emit();
+  emit(true);
   const matchedFiles = directPaths.length + dateSources.length;
   return {
     key: def.key,
