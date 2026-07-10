@@ -140,7 +140,12 @@ export function initApp(app: HTMLElement): void {
     }
   }
 
-  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("click", (event) => {
+    // fileInput lives inside dropzone, so a programmatic click() on it would
+    // otherwise bubble back up and re-trigger this same listener.
+    if (event.target === fileInput) return;
+    fileInput.click();
+  });
 
   dropzone.addEventListener("keydown", (event) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -177,5 +182,8 @@ export function initApp(app: HTMLElement): void {
   resetButton.addEventListener("click", showIdle);
 }
 
-injectFavicon();
-initApp(requireElement(document.querySelector<HTMLDivElement>("#app"), "#app"));
+const appRoot = document.querySelector<HTMLDivElement>("#app");
+if (appRoot) {
+  injectFavicon();
+  initApp(appRoot);
+}
