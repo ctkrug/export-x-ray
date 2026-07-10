@@ -1,0 +1,37 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  color: #eee;
+}
+
+#app {
+  width: min(90vw, 640px);
+  text-align: center;
+  padding: 2rem;
+}
+
+#dropzone {
+  border: 2px dashed #555;
+  border-radius: 8px;
+  padding: 3rem 1.5rem;
+  cursor: pointer;
+}
+
+#dropzone.dragover {
+  border-color: #6cf;
+}
+
+#summary {
+  margin-top: 1.5rem;
+  text-align: left;
+  white-space: pre-wrap;
+}
