@@ -27,6 +27,7 @@ function mount() {
     dropzone: root.querySelector<HTMLDivElement>("#dropzone")!,
     dashboard: root.querySelector<HTMLDivElement>("#dashboard")!,
     errorPanel: root.querySelector<HTMLDivElement>("#error-panel")!,
+    errorRetryButton: root.querySelector<HTMLButtonElement>("#error-retry-button")!,
     providerChip: root.querySelector<HTMLSpanElement>("#provider-chip")!,
     statGrid: root.querySelector<HTMLDivElement>("#stat-grid")!,
     exportButton: root.querySelector<HTMLButtonElement>("#export-button")!,
@@ -71,6 +72,19 @@ describe("initApp", () => {
     expect(ui.errorPanel.textContent).toContain("couldn't read this file as a zip archive");
     expect(ui.dashboard.hidden).toBe(true);
     expect(ui.exportButton.hidden).toBe(true);
+  });
+
+  it("returns to the idle dropzone when Try again is clicked from an error", async () => {
+    const ui = mount();
+    const file = new File(["not a zip"], "notes.txt", { type: "text/plain" });
+
+    ui.dropzone.dispatchEvent(dropEvent(file));
+    await vi.waitFor(() => expect(ui.errorPanel.hidden).toBe(false));
+
+    ui.errorRetryButton.click();
+
+    expect(ui.errorPanel.hidden).toBe(true);
+    expect(ui.dropzone.hidden).toBe(false);
   });
 
   it("reveals Export summary once a result is in and downloads the current summary on click", async () => {
