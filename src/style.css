@@ -118,3 +118,77 @@ input {
   max-width: 60ch;
   margin-inline: auto;
 }
+
+.lightbox {
+  position: relative;
+  width: min(90vw, 1100px);
+  min-height: 60vh;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(180deg, rgba(26, 32, 41, 0.7), rgba(18, 22, 31, 0.85));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(77, 216, 232, 0.14);
+  box-shadow: var(--glow-accent), var(--shadow-lift);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropzone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: var(--space-3);
+  padding: var(--space-6) var(--space-3);
+  border: 2px dashed rgba(77, 216, 232, 0.3);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color var(--motion-ui),
+    background-color var(--motion-ui),
+    transform var(--motion-ui),
+    box-shadow var(--motion-ui);
+}
+
+.dropzone:hover {
+  border-color: rgba(77, 216, 232, 0.6);
+  background-color: rgba(77, 216, 232, 0.04);
+}
+
+.dropzone:active {
+  transform: scale(0.995);
+}
+
+.dropzone.dragover {
+  border-style: solid;
+  border-color: var(--accent);
+  background-color: rgba(77, 216, 232, 0.08);
+  box-shadow: 0 0 48px rgba(77, 216, 232, 0.18);
+}
+
+.dropzone-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--accent);
+  transition: transform var(--motion-ui);
+}
+
+.dropzone.dragover .dropzone-icon {
+  transform: translateY(-4px) scale(1.05);
+}
+
+.dropzone-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.dropzone-hint {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
