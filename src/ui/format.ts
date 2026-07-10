@@ -18,6 +18,11 @@ const CATEGORY_NOUN: Record<CategoryKey, string> = {
   photos: "photos",
   search: "searches",
   youtube: "videos",
+  posts: "posts",
+  messages: "messages",
+  streaming: "plays",
+  playlists: "playlists",
+  library: "saved tracks",
 };
 
 export function formatProviderLabel(provider: ExportProvider): string {
