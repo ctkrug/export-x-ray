@@ -12,6 +12,11 @@ planned, and [`docs/DESIGN.md`](DESIGN.md) for the visual direction.
 - `npm run typecheck` / `npm run lint` / `npm run format:check` — same checks CI runs.
 - `npm run build` — `tsc --noEmit && vite build`; output is `dist/`, base-path-relative so it can
   be served from a subpath.
+- `npm run test:coverage` — Vitest with the v8 coverage provider; core parser modules run at
+  ~99% line coverage. A handful of pure, well-scoped functions (`parseTimestamp`,
+  `mergeTimestamp`, `unionDateRanges`, `forEachChunked`'s `shouldStop` cutoff) also have
+  property-based tests via `fast-check` alongside their example-based tests, in the same test
+  files (e.g. `tests/date-utils.test.ts`).
 
 ## Data flow
 
