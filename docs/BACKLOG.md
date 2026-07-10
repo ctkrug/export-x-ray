@@ -6,7 +6,7 @@ reachable before anything else is built.
 
 ## Epic 1 — Core engine & the wow moment
 
-- [ ] **1.1 Live incremental dashboard for a Google Takeout archive (WOW MOMENT)**
+- [x] **1.1 Live incremental dashboard for a Google Takeout archive (WOW MOMENT)**
       Drag a real Google Takeout zip onto the page and, before parsing finishes, see a dashboard
       render headline numbers live: years of data covered, total location points, oldest photo
       date. Nothing is uploaded.
@@ -18,7 +18,7 @@ reachable before anything else is built.
   - Opening the browser devtools network tab during the entire flow shows zero outgoing requests
     carrying archive data.
 
-- [ ] **1.2 Provider auto-detection**
+- [x] **1.2 Provider auto-detection**
       Detect whether an uploaded archive is Google Takeout, Facebook, or Spotify from its folder
       structure, with no user-supplied hint.
   - A Takeout-shaped, Facebook-shaped, and Spotify-shaped fixture archive each resolve to the
@@ -26,7 +26,7 @@ reachable before anything else is built.
   - An archive matching none of the three known layouts resolves to `"unknown"` rather than
     throwing or silently picking a wrong provider.
 
-- [ ] **1.3 Non-blocking incremental parse for large archives**
+- [x] **1.3 Non-blocking incremental parse for large archives**
       Parsing a large archive must not freeze the page — the UI stays responsive and renders
       progress as it goes.
   - A synthetic archive of 10,000+ entries parses without the main thread blocking for more than
@@ -36,7 +36,7 @@ reachable before anything else is built.
 
 ## Epic 2 — Google Takeout category parsers
 
-- [ ] **2.1 Location History parser**
+- [x] **2.1 Location History parser**
       Parse Takeout's Location History (Records.json or Semantic Location History) into a count and
       date range.
   - Given a fixture Location History file, the parser returns the correct total point count and
@@ -44,7 +44,7 @@ reachable before anything else is built.
   - A Takeout archive with no Location History folder present does not error — the category is
     reported as absent.
 
-- [ ] **2.2 Photos metadata parser**
+- [x] **2.2 Photos metadata parser**
       Parse Google Photos export metadata (per-photo JSON sidecars) into a count and oldest/newest
       photo date.
   - Given fixture photo metadata files, the parser returns the correct photo count and the
@@ -52,12 +52,12 @@ reachable before anything else is built.
   - Photos missing a metadata sidecar are counted but excluded from the date-range calculation
     rather than crashing the parse.
 
-- [ ] **2.3 Search & YouTube history parser**
+- [x] **2.3 Search & YouTube history parser**
       Parse Takeout's Search history and YouTube watch/search history into counts and date ranges.
   - Given fixture search-history and YouTube-history JSON, the parser returns correct record
     counts and date ranges for each category independently.
 
-- [ ] **2.4 Missing/thin category flagging**
+- [x] **2.4 Missing/thin category flagging**
       Surface which of the expected Takeout categories are present, thin (unexpectedly low record
       count), or entirely missing from this particular export.
   - A Takeout archive missing an expected top-level product folder (e.g. no `YouTube` folder)
@@ -87,7 +87,7 @@ reachable before anything else is built.
 
 ## Epic 4 — Robustness, privacy & ship polish
 
-- [ ] **4.1 Graceful handling of corrupt or invalid archives**
+- [x] **4.1 Graceful handling of corrupt or invalid archives**
       A non-zip file, a corrupted zip, or a password-protected zip produces a clear inline error
       instead of a crash or silent blank state.
   - Dropping a non-zip file shows an inline error message and does not throw an unhandled
@@ -100,7 +100,7 @@ reachable before anything else is built.
   - Clicking "export summary" downloads a file containing the same category counts and date
     ranges currently shown on screen.
 
-- [ ] **4.3 Automated no-network-calls privacy check**
+- [x] **4.3 Automated no-network-calls privacy check**
       Back the project's core privacy claim with an automated check, not just a manual promise.
   - A test (e.g. intercepting `fetch`/`XMLHttpRequest` in a jsdom/browser test environment) fails
     the build if any network call fires during a full drop-to-summary run.
