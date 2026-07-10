@@ -34,6 +34,23 @@ describe("summarizeArchive", () => {
     expect(summary.categories).toEqual([]);
   });
 
+  it("summarizes a genuinely empty zip (zero entries) without throwing", async () => {
+    const archive = await buildZip({});
+
+    const summary = await summarizeArchive(archive);
+
+    expect(summary.provider).toBe("unknown");
+    expect(summary.fileCount).toBe(0);
+    expect(summary.topLevelEntries).toEqual([]);
+    expect(summary.categories).toEqual([]);
+  });
+
+  it("rejects a zero-byte input with the same clear error as any unreadable file", async () => {
+    await expect(summarizeArchive(new ArrayBuffer(0))).rejects.toThrow(
+      "couldn't read this file as a zip archive",
+    );
+  });
+
   it("produces per-category counts, date ranges, and an overall date range for a full Takeout archive", async () => {
     const archive = await buildZip({
       "Takeout/Location History (Timeline)/Records.json": JSON.stringify({
