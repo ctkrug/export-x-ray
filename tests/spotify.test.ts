@@ -59,6 +59,10 @@ describe("parseSpotifyLibraryFile", () => {
   it("returns empty when the file has no tracks array", () => {
     expect(parseSpotifyLibraryFile("{}")).toEqual({ recordCount: 0, timestamps: [] });
   });
+
+  it("returns empty for malformed JSON instead of throwing", () => {
+    expect(parseSpotifyLibraryFile("not json")).toEqual({ recordCount: 0, timestamps: [] });
+  });
 });
 
 describe("Spotify path matchers", () => {
