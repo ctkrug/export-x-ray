@@ -12,10 +12,14 @@ app.innerHTML = `
   <div id="summary"></div>
 `;
 
-const dropzone = app.querySelector<HTMLDivElement>("#dropzone");
-const fileInput = app.querySelector<HTMLInputElement>("#file-input");
-const summaryEl = app.querySelector<HTMLDivElement>("#summary");
-if (!dropzone || !fileInput || !summaryEl) throw new Error("missing expected UI elements");
+function requireElement<T extends Element>(el: T | null, selector: string): T {
+  if (!el) throw new Error(`missing expected element: ${selector}`);
+  return el;
+}
+
+const dropzone = requireElement(app.querySelector<HTMLDivElement>("#dropzone"), "#dropzone");
+const fileInput = requireElement(app.querySelector<HTMLInputElement>("#file-input"), "#file-input");
+const summaryEl = requireElement(app.querySelector<HTMLDivElement>("#summary"), "#summary");
 
 function renderSummary(summary: ArchiveSummary): void {
   summaryEl.textContent = [

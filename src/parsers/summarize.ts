@@ -7,7 +7,11 @@ export async function summarizeArchive(file: File | Blob): Promise<ArchiveSummar
   const zip = await JSZip.loadAsync(file);
   const paths = Object.keys(zip.files);
 
-  const topLevelEntries = [...new Set(paths.map((path) => path.split("/")[0]).filter(Boolean))];
+  const topLevelEntries = [
+    ...new Set(
+      paths.map((path) => path.split("/")[0]).filter((entry): entry is string => Boolean(entry)),
+    ),
+  ];
 
   return {
     provider: detectProvider(topLevelEntries),
