@@ -45,6 +45,16 @@ describe("summarizeArchive", () => {
     expect(summary.categories).toEqual([]);
   });
 
+  it("doesn't emit an empty string as a top-level entry for a leading-slash path", async () => {
+    const archive = await buildZip({ "/notes.txt": "hello" });
+
+    const summary = await summarizeArchive(archive);
+
+    expect(summary.fileCount).toBe(1);
+    expect(summary.topLevelEntries).toEqual([]);
+    expect(summary.topLevelEntries.every((entry) => entry.length > 0)).toBe(true);
+  });
+
   it("excludes bare directory entries from the file count and top-level entries", async () => {
     const zip = new JSZip();
     zip.folder("Takeout");
