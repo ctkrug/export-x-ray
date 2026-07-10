@@ -106,7 +106,13 @@ describe("forEachChunked", () => {
     // a zero threshold forces the real setTimeout-backed yield after every item,
     // so a genuine macrotask hop happens between each visit.
     const seen: number[] = [];
-    await forEachChunked([1, 2, 3], (item) => seen.push(item), { yieldEveryMs: 0 });
+    await forEachChunked(
+      [1, 2, 3],
+      (item) => {
+        seen.push(item);
+      },
+      { yieldEveryMs: 0 },
+    );
     expect(seen).toEqual([1, 2, 3]);
   });
 
