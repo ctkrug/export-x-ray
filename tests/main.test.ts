@@ -134,6 +134,22 @@ describe("initApp", () => {
     expect(ui.dashboard.hidden).toBe(true);
   });
 
+  it("survives a rapid double-click on Cancel without throwing", async () => {
+    const ui = mount();
+    const file = await buildZipFile({
+      "Takeout/Location History (Timeline)/Records.json": JSON.stringify({ locations: [] }),
+    });
+
+    ui.dropzone.dispatchEvent(dropEvent(file));
+    expect(() => {
+      ui.cancelButton.click();
+      ui.cancelButton.click();
+    }).not.toThrow();
+
+    await vi.waitFor(() => expect(ui.dropzone.hidden).toBe(false));
+    expect(ui.dashboard.hidden).toBe(true);
+  });
+
   it("lets a second drop win when it lands before the first parse settles, without the stale run clobbering it", async () => {
     const ui = mount();
     const fileA = await buildZipFile(
