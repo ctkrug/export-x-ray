@@ -1,14 +1,14 @@
 import JSZip from "jszip";
 import { describe, expect, it } from "vitest";
 import {
-  CATEGORY_DEFINITIONS,
+  TAKEOUT_CATEGORY_DEFINITIONS,
   accumulateCategory,
   flagCategoryStatus,
   initialCategorySummary,
 } from "../src/parsers/categories";
 
 function getDefinition(key: string) {
-  const def = CATEGORY_DEFINITIONS.find((d) => d.key === key);
+  const def = TAKEOUT_CATEGORY_DEFINITIONS.find((d) => d.key === key);
   if (!def) throw new Error(`no category definition for ${key}`);
   return def;
 }

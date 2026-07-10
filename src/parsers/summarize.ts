@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import { detectProvider } from "./detect";
-import { CATEGORY_DEFINITIONS, accumulateCategory, initialCategorySummary } from "./categories";
+import { TAKEOUT_CATEGORY_DEFINITIONS, accumulateCategory, initialCategorySummary } from "./categories";
 import { EMPTY_DATE_RANGE, unionDateRanges } from "./date-utils";
 import type { ArchiveSummary, CategorySummary } from "../types";
 
@@ -62,7 +62,7 @@ export async function summarizeArchive(
     dateRange: EMPTY_DATE_RANGE,
     categories:
       provider === "google-takeout"
-        ? CATEGORY_DEFINITIONS.map((def) => initialCategorySummary(def, paths))
+        ? TAKEOUT_CATEGORY_DEFINITIONS.map((def) => initialCategorySummary(def, paths))
         : [],
   };
   options.onProgress?.(cloneSummary(summary));
@@ -71,7 +71,7 @@ export async function summarizeArchive(
     return summary;
   }
 
-  for (const def of CATEGORY_DEFINITIONS) {
+  for (const def of TAKEOUT_CATEGORY_DEFINITIONS) {
     checkAborted(options.signal);
 
     const updated = await accumulateCategory(

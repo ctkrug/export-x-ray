@@ -27,7 +27,7 @@ function isUnder(path: string, folderHint: string): boolean {
   return path.toLowerCase().includes(folderHint);
 }
 
-export const CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
+export const TAKEOUT_CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
   {
     key: "location",
     label: "Location History",
