@@ -318,6 +318,20 @@ input {
   gap: var(--space-1);
 }
 
+.category-list.is-empty {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-4) 0;
+}
+
+.category-empty-state {
+  color: var(--text-muted);
+  max-width: 60ch;
+  line-height: 1.6;
+}
+
 .category-chip {
   display: flex;
   align-items: center;
