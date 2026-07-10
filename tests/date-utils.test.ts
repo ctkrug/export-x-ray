@@ -1,3 +1,4 @@
+import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import {
   EMPTY_DATE_RANGE,
@@ -7,6 +8,9 @@ import {
   parseTimestamp,
   unionDateRanges,
 } from "../src/parsers/date-utils";
+
+/** Mirrors date-utils.ts's private SECONDS_TO_MS_THRESHOLD, which isn't exported. */
+const SECONDS_TO_MS_THRESHOLD = 1e11;
 
 describe("parseTimestamp", () => {
   it("treats a numeric string under the seconds threshold as epoch seconds", () => {
@@ -46,6 +50,35 @@ describe("parseTimestamp", () => {
   it("returns null for a whitespace-only string", () => {
     expect(parseTimestamp("   ")).toBeNull();
   });
+
+  it("[property] scales any integer under the seconds threshold to milliseconds, as a number or a string", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 0, max: SECONDS_TO_MS_THRESHOLD - 1 }), (seconds) => {
+        expect(parseTimestamp(seconds)).toBe(seconds * 1000);
+        expect(parseTimestamp(String(seconds))).toBe(seconds * 1000);
+      }),
+    );
+  });
+
+  it("[property] passes any integer at or above the threshold through unchanged, as a number or a string", () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: SECONDS_TO_MS_THRESHOLD, max: Number.MAX_SAFE_INTEGER }),
+        (ms) => {
+          expect(parseTimestamp(ms)).toBe(ms);
+          expect(parseTimestamp(String(ms))).toBe(ms);
+        },
+      ),
+    );
+  });
+
+  it("[property] never throws, for any input shape", () => {
+    fc.assert(
+      fc.property(fc.anything(), (value) => {
+        expect(() => parseTimestamp(value)).not.toThrow();
+      }),
+    );
+  });
 });
 
 describe("mergeTimestamp", () => {
@@ -63,6 +96,20 @@ describe("mergeTimestamp", () => {
   it("ignores a null timestamp", () => {
     const range = mergeTimestamp(EMPTY_DATE_RANGE, null);
     expect(range).toEqual(EMPTY_DATE_RANGE);
+  });
+
+  it("[property] keeps every merged timestamp within the resulting [earliestMs, latestMs] bounds", () => {
+    fc.assert(
+      fc.property(fc.array(fc.integer()), (timestamps) => {
+        const range = timestamps.reduce(mergeTimestamp, EMPTY_DATE_RANGE);
+        for (const t of timestamps) {
+          expect(range.earliestMs).not.toBeNull();
+          expect(range.latestMs).not.toBeNull();
+          expect(range.earliestMs as number).toBeLessThanOrEqual(t);
+          expect(range.latestMs as number).toBeGreaterThanOrEqual(t);
+        }
+      }),
+    );
   });
 });
 
@@ -82,6 +129,24 @@ describe("unionDateRanges", () => {
   it("skips ranges that are themselves empty", () => {
     const union = unionDateRanges([EMPTY_DATE_RANGE, { earliestMs: 10, latestMs: 20 }]);
     expect(union).toEqual({ earliestMs: 10, latestMs: 20 });
+  });
+
+  it("[property] spans the min earliest and max latest across any set of non-empty ranges", () => {
+    fc.assert(
+      fc.property(fc.array(fc.tuple(fc.integer(), fc.integer())), (pairs) => {
+        const ranges = pairs.map(([a, b]) => ({
+          earliestMs: Math.min(a, b),
+          latestMs: Math.max(a, b),
+        }));
+        const union = unionDateRanges(ranges);
+        if (ranges.length === 0) {
+          expect(union).toEqual(EMPTY_DATE_RANGE);
+          return;
+        }
+        expect(union.earliestMs).toBe(Math.min(...ranges.map((r) => r.earliestMs)));
+        expect(union.latestMs).toBe(Math.max(...ranges.map((r) => r.latestMs)));
+      }),
+    );
   });
 });
 
