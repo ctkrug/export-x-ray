@@ -82,6 +82,14 @@ describe("Facebook path matchers", () => {
     expect(isFacebookMessagesPath("messages/message_requests/message_1.json")).toBe(false);
   });
 
+  it("matches folder segments exactly, not as a substring of an unrelated folder name", () => {
+    // "posts" and "messages"/"inbox" must be whole path segments — a decoy
+    // folder like "messagesarchive" or "reposts" must not false-positive.
+    expect(isFacebookPostsPath("reposts/your_posts_1.json")).toBe(false);
+    expect(isFacebookMessagesPath("messagesarchive/inbox/x.json")).toBe(false);
+    expect(isFacebookMessagesPath("messages/inboxed/x.json")).toBe(false);
+  });
+
   it("recognizes photos/videos files under photos_and_videos", () => {
     expect(isFacebookPhotosPath("photos_and_videos/your_photos.json")).toBe(true);
     expect(isFacebookPhotosPath("posts/your_posts_1.json")).toBe(false);
