@@ -59,4 +59,30 @@ describe("parseLocationHistoryFile", () => {
     expect(result.recordCount).toBe(2);
     expect(result.timestamps).toEqual([null, null]);
   });
+
+  it("emits null instead of throwing for non-object entries in locations", () => {
+    const text = JSON.stringify({ locations: [null, "garbage", { timestampMs: "1583020800000" }] });
+    const result = parseLocationHistoryFile(text);
+    expect(result.recordCount).toBe(3);
+    expect(result.timestamps).toEqual([null, null, 1583020800000]);
+  });
+
+  it("emits null instead of throwing for non-object entries in timelineObjects", () => {
+    const text = JSON.stringify({ timelineObjects: [null, 7] });
+    const result = parseLocationHistoryFile(text);
+    expect(result.recordCount).toBe(2);
+    expect(result.timestamps).toEqual([null, null]);
+  });
+
+  it("emits null for a timeline object with neither activitySegment nor placeVisit", () => {
+    const text = JSON.stringify({ timelineObjects: [{ unrelated: true }] });
+    const result = parseLocationHistoryFile(text);
+    expect(result.timestamps).toEqual([null]);
+  });
+
+  it("emits null for a timeline object whose segment has no duration", () => {
+    const text = JSON.stringify({ timelineObjects: [{ activitySegment: { distance: 100 } }] });
+    const result = parseLocationHistoryFile(text);
+    expect(result.timestamps).toEqual([null]);
+  });
 });
