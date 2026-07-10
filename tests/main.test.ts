@@ -164,6 +164,31 @@ describe("initApp", () => {
     expect(clickSpy).toHaveBeenCalledTimes(2);
   });
 
+  it("opens the file picker on a direct dropzone click, but not when the click originates from the input itself", () => {
+    const ui = mount();
+    const clickSpy = vi.spyOn(ui.fileInput, "click");
+
+    ui.dropzone.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+
+    clickSpy.mockClear();
+    const bubbledFromInput = new MouseEvent("click", { bubbles: true, cancelable: true });
+    Object.defineProperty(bubbledFromInput, "target", { value: ui.fileInput });
+    ui.dropzone.dispatchEvent(bubbledFromInput);
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  it("parses the file chosen via the file input's change event, not just drag-and-drop", async () => {
+    const ui = mount();
+    const file = await buildZipFile({ "Takeout/YouTube/history.json": "[]" });
+
+    Object.defineProperty(ui.fileInput, "files", { value: [file], configurable: true });
+    ui.fileInput.dispatchEvent(new Event("change", { bubbles: true, cancelable: true }));
+
+    await vi.waitFor(() => expect(ui.dashboard.hidden).toBe(false));
+    expect(ui.providerChip.textContent).toBe("Google Takeout");
+  });
+
   it("toggles the dragover class on dragover/dragleave", () => {
     const ui = mount();
 
