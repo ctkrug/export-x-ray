@@ -1,0 +1,23 @@
+{
+  "name": "export-x-ray",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drag in a Google Takeout, Facebook, or Spotify export and get an instant, private, client-side summary of what's inside.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.0.5"
+  }
+}
