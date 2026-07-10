@@ -134,6 +134,32 @@ describe("initApp", () => {
     expect(ui.dashboard.hidden).toBe(true);
   });
 
+  it("lets a second drop win when it lands before the first parse settles, without the stale run clobbering it", async () => {
+    const ui = mount();
+    const fileA = await buildZipFile(
+      { "Takeout/Location History (Timeline)/Records.json": JSON.stringify({ locations: [] }) },
+      "a.zip",
+    );
+    const fileB = await buildZipFile({ "Takeout/YouTube/history.json": "[]" }, "b.zip");
+
+    // Both dispatchEvent calls run handleFile synchronously up to its first
+    // await, so dropping B immediately after A reliably aborts A's in-flight
+    // parse before it resolves — exercising the stale-token guard rather
+    // than a real, timing-dependent race.
+    ui.dropzone.dispatchEvent(dropEvent(fileA));
+    ui.dropzone.dispatchEvent(dropEvent(fileB));
+
+    await vi.waitFor(() => expect(ui.dashboard.hidden).toBe(false));
+    expect(ui.providerChip.textContent).toBe("Google Takeout");
+    expect(ui.dropzone.hidden).toBe(true);
+
+    // Give A's aborted parse a chance to settle too; it must not have reset
+    // the UI back to idle out from under B's rendered result.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(ui.dashboard.hidden).toBe(false);
+    expect(ui.dropzone.hidden).toBe(true);
+  });
+
   it("returns to the idle dropzone when New file is clicked after a successful parse", async () => {
     const ui = mount();
     const file = await buildZipFile({ "notes.txt": "hello" });
