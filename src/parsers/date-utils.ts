@@ -17,11 +17,23 @@ export function parseTimestamp(value: unknown): number | null {
   }
 
   if (typeof value === "string" && value.trim() !== "") {
-    const parsed = Date.parse(value);
+    const parsed = Date.parse(normalizeDateTimeString(value.trim()));
     return Number.isNaN(parsed) ? null : parsed;
   }
 
   return null;
+}
+
+/**
+ * Spotify's export timestamps ("2021-06-01 12:00") use a space between date
+ * and time instead of ISO 8601's "T", which some engines parse inconsistently.
+ * Normalizing to "T" (and assuming UTC when no offset is given, matching
+ * Spotify's own documented format) keeps parsing deterministic everywhere.
+ */
+function normalizeDateTimeString(value: string): string {
+  const spaceSeparated = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}(:\d{2})?)$/;
+  const match = spaceSeparated.exec(value);
+  return match ? `${match[1]}T${match[2]}Z` : value;
 }
 
 function toFiniteNumber(value: unknown): number | null {
