@@ -26,6 +26,11 @@ describe("parseTimestamp", () => {
     expect(parseTimestamp("2020-03-01T00:00:00Z")).toBe(Date.parse("2020-03-01T00:00:00Z"));
   });
 
+  it("parses Spotify's space-separated date-time format as UTC", () => {
+    expect(parseTimestamp("2021-06-01 12:00")).toBe(Date.parse("2021-06-01T12:00:00Z"));
+    expect(parseTimestamp("2021-06-01 12:00:30")).toBe(Date.parse("2021-06-01T12:00:30Z"));
+  });
+
   it("returns null for empty, malformed, or non-finite input", () => {
     expect(parseTimestamp("")).toBeNull();
     expect(parseTimestamp("not a date")).toBeNull();
