@@ -45,6 +45,20 @@ describe("parseSpotifyPlaylistsFile", () => {
   it("returns empty for malformed JSON instead of throwing", () => {
     expect(parseSpotifyPlaylistsFile("not json")).toEqual({ recordCount: 0, timestamps: [] });
   });
+
+  it("skips non-object playlists and playlists without an items array, without throwing", () => {
+    const result = parseSpotifyPlaylistsFile(
+      JSON.stringify({
+        playlists: [
+          null,
+          { name: "No items field" },
+          { name: "Real", items: [null, { addedDate: "2020-01-01" }] },
+        ],
+      }),
+    );
+    expect(result.recordCount).toBe(3);
+    expect(result.timestamps).toEqual([null, Date.parse("2020-01-01")]);
+  });
 });
 
 describe("parseSpotifyLibraryFile", () => {
