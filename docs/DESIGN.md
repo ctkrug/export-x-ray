@@ -18,17 +18,17 @@ or a scan-beam signature motif.
 
 ## 2. Tokens
 
-| Token | Value | Use |
-|---|---|---|
-| `--bg` | `#0a0d12` | page background — darkened room |
-| `--surface-1` | `#12161f` | primary panel (the lightbox), frosted glass over `--bg` |
-| `--surface-2` | `#1a2029` | recessed/nested panels, input controls |
-| `--text` | `#e9edf3` | primary text |
-| `--text-muted` | `#8b95a5` | secondary labels, captions |
-| `--accent` | `#4dd8e8` | X-ray cyan — glow, primary actions, active states |
-| `--accent-support` | `#f2a93b` | amber — warnings, "thin/missing category" flags |
-| `--success` | `#4ecb8f` | category present and healthy |
-| `--danger` | `#e8607a` | parse error, unreadable archive |
+| Token              | Value     | Use                                                     |
+| ------------------ | --------- | ------------------------------------------------------- |
+| `--bg`             | `#0a0d12` | page background — darkened room                         |
+| `--surface-1`      | `#12161f` | primary panel (the lightbox), frosted glass over `--bg` |
+| `--surface-2`      | `#1a2029` | recessed/nested panels, input controls                  |
+| `--text`           | `#e9edf3` | primary text                                            |
+| `--text-muted`     | `#8b95a5` | secondary labels, captions                              |
+| `--accent`         | `#4dd8e8` | X-ray cyan — glow, primary actions, active states       |
+| `--accent-support` | `#f2a93b` | amber — warnings, "thin/missing category" flags         |
+| `--success`        | `#4ecb8f` | category present and healthy                            |
+| `--danger`         | `#e8607a` | parse error, unreadable archive                         |
 
 - **Type pairing:** Display — [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk)
   (geometric, slightly technical, used for the wordmark and headings), system sans-serif
@@ -38,7 +38,7 @@ or a scan-beam signature motif.
 - **Spacing unit:** 8px scale (8/16/24/32/48/64).
 - **Corner radius:** 12px for panels, 8px for controls, 999px (pill) for the mute/status chips.
 - **Shadow/glow:** panels get a soft outer glow in `--accent` at low opacity (`0 0 32px rgba(77,
-  216, 232, 0.12)`) plus a conventional soft drop shadow for lift; no hard-edged offset shadows
+216, 232, 0.12)`) plus a conventional soft drop shadow for lift; no hard-edged offset shadows
   (that's Syntax Sprint's language, not this one).
 - **Motion:** UI transitions 150–220ms ease-out. The scan-beam sweep runs at ~1200ms per pass,
   looping only while actively parsing, and stops the instant results are in.
