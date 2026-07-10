@@ -45,6 +45,18 @@ describe("summarizeArchive", () => {
     expect(summary.categories).toEqual([]);
   });
 
+  it("excludes bare directory entries from the file count and top-level entries", async () => {
+    const zip = new JSZip();
+    zip.folder("Takeout");
+    zip.folder("Takeout/Empty Folder");
+    const archive = await zip.generateAsync({ type: "arraybuffer" });
+
+    const summary = await summarizeArchive(archive);
+
+    expect(summary.fileCount).toBe(0);
+    expect(summary.topLevelEntries).toEqual([]);
+  });
+
   it("rejects a zero-byte input with the same clear error as any unreadable file", async () => {
     await expect(summarizeArchive(new ArrayBuffer(0))).rejects.toThrow(
       "couldn't read this file as a zip archive",
