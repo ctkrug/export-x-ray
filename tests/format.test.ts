@@ -114,6 +114,28 @@ describe("buildStatTiles", () => {
     });
   });
 
+  it("adds a generic tile for non-headline categories like Search or Posts", () => {
+    const tiles = buildStatTiles({
+      ...baseSummary,
+      categories: [
+        makeCategory({ key: "search", label: "Search History", recordCount: 42 }),
+        makeCategory({ key: "posts", label: "Posts", recordCount: 7 }),
+      ],
+    });
+    expect(tiles.find((t) => t.label === "Search History")?.value).toBe("42 searches");
+    expect(tiles.find((t) => t.label === "Posts")?.value).toBe("7 posts");
+  });
+
+  it("omits a generic tile for a non-headline category that is missing", () => {
+    const tiles = buildStatTiles({
+      ...baseSummary,
+      categories: [
+        makeCategory({ key: "search", label: "Search History", recordCount: 0, status: "missing" }),
+      ],
+    });
+    expect(tiles.find((t) => t.label === "Search History")).toBeUndefined();
+  });
+
   it("falls back to a top-level entries tile when there are no categories at all", () => {
     const tiles = buildStatTiles({ ...baseSummary, provider: "unknown", categories: [] });
     expect(tiles.find((t) => t.label === "Top-level entries")).toEqual({
