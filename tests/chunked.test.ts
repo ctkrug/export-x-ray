@@ -101,6 +101,15 @@ describe("forEachChunked", () => {
     expect(seen).toEqual([]);
   });
 
+  it("runs to completion on its real defaults (performance.now + a setTimeout yield)", async () => {
+    // Exercises the production defaults rather than the injected test doubles:
+    // a zero threshold forces the real setTimeout-backed yield after every item,
+    // so a genuine macrotask hop happens between each visit.
+    const seen: number[] = [];
+    await forEachChunked([1, 2, 3], (item) => seen.push(item), { yieldEveryMs: 0 });
+    expect(seen).toEqual([1, 2, 3]);
+  });
+
   it("awaits an async fn before moving to the next item", async () => {
     const order: string[] = [];
     await forEachChunked([1, 2], async (item) => {
