@@ -104,9 +104,15 @@ describe("initApp", () => {
     const ui = mount();
     const clickSpy = vi.spyOn(ui.fileInput, "click");
 
-    ui.dropzone.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }));
-    ui.dropzone.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }));
-    ui.dropzone.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true, cancelable: true }));
+    ui.dropzone.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+    );
+    ui.dropzone.dispatchEvent(
+      new KeyboardEvent("keydown", { key: " ", bubbles: true, cancelable: true }),
+    );
+    ui.dropzone.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "a", bubbles: true, cancelable: true }),
+    );
 
     expect(clickSpy).toHaveBeenCalledTimes(2);
   });

@@ -52,7 +52,9 @@ describe("parseLocationHistoryFile", () => {
   });
 
   it("emits null for a record whose timestamp field is missing or unparsable", () => {
-    const text = JSON.stringify({ locations: [{ latitudeE7: 1 }, { timestampMs: "not a number" }] });
+    const text = JSON.stringify({
+      locations: [{ latitudeE7: 1 }, { timestampMs: "not a number" }],
+    });
     const result = parseLocationHistoryFile(text);
     expect(result.recordCount).toBe(2);
     expect(result.timestamps).toEqual([null, null]);

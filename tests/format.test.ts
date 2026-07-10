@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildStatTiles, formatCategoryCount, formatCount, formatProviderLabel } from "../src/ui/format";
+import {
+  buildStatTiles,
+  formatCategoryCount,
+  formatCount,
+  formatProviderLabel,
+} from "../src/ui/format";
 import type { ArchiveSummary, CategorySummary } from "../src/types";
 
 function makeCategory(overrides: Partial<CategorySummary>): CategorySummary {
@@ -44,7 +49,10 @@ describe("buildStatTiles", () => {
     provider: "google-takeout",
     fileCount: 1200,
     topLevelEntries: ["Takeout"],
-    dateRange: { earliestMs: Date.parse("2012-01-01T00:00:00Z"), latestMs: Date.parse("2024-07-10T00:00:00Z") },
+    dateRange: {
+      earliestMs: Date.parse("2012-01-01T00:00:00Z"),
+      latestMs: Date.parse("2024-07-10T00:00:00Z"),
+    },
     categories: [],
   };
 
@@ -55,7 +63,10 @@ describe("buildStatTiles", () => {
   });
 
   it("shows an em dash for an unresolved date range", () => {
-    const tiles = buildStatTiles({ ...baseSummary, dateRange: { earliestMs: null, latestMs: null } });
+    const tiles = buildStatTiles({
+      ...baseSummary,
+      dateRange: { earliestMs: null, latestMs: null },
+    });
     expect(tiles[1]?.value).toBe("—");
   });
 
@@ -64,7 +75,9 @@ describe("buildStatTiles", () => {
       ...baseSummary,
       categories: [makeCategory({ key: "location", recordCount: 220000, status: "present" })],
     });
-    expect(withLocation.some((t) => t.label === "Location points" && t.value === "220,000")).toBe(true);
+    expect(withLocation.some((t) => t.label === "Location points" && t.value === "220,000")).toBe(
+      true,
+    );
 
     const withoutLocation = buildStatTiles({
       ...baseSummary,
@@ -82,14 +95,23 @@ describe("buildStatTiles", () => {
           label: "Photos",
           recordCount: 5,
           status: "present",
-          dateRange: { earliestMs: Date.parse("2012-03-01T00:00:00Z"), latestMs: Date.parse("2020-01-01T00:00:00Z") },
+          dateRange: {
+            earliestMs: Date.parse("2012-03-01T00:00:00Z"),
+            latestMs: Date.parse("2020-01-01T00:00:00Z"),
+          },
         }),
       ],
     });
 
     expect(tiles.find((t) => t.label === "Photos")).toEqual({ label: "Photos", value: "5" });
-    expect(tiles.find((t) => t.label === "Oldest photo")).toEqual({ label: "Oldest photo", value: "2012-03-01" });
-    expect(tiles.find((t) => t.label === "Newest photo")).toEqual({ label: "Newest photo", value: "2020-01-01" });
+    expect(tiles.find((t) => t.label === "Oldest photo")).toEqual({
+      label: "Oldest photo",
+      value: "2012-03-01",
+    });
+    expect(tiles.find((t) => t.label === "Newest photo")).toEqual({
+      label: "Newest photo",
+      value: "2020-01-01",
+    });
   });
 
   it("falls back to a top-level entries tile when there are no categories at all", () => {

@@ -42,7 +42,9 @@ describe("flagCategoryStatus", () => {
 
 describe("initialCategorySummary", () => {
   it("reports missing for a category with no matching paths", () => {
-    const summary = initialCategorySummary(getDefinition("location"), ["Takeout/YouTube/history.json"]);
+    const summary = initialCategorySummary(getDefinition("location"), [
+      "Takeout/YouTube/history.json",
+    ]);
     expect(summary.status).toBe("missing");
     expect(summary.recordCount).toBe(0);
   });
@@ -99,7 +101,9 @@ describe("accumulateCategory", () => {
   it("counts Photos from media files while sourcing dates only from sidecars", async () => {
     const zip = await buildZip({
       "Takeout/Google Photos/2020/a.jpg": "binary",
-      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({ photoTakenTime: { timestamp: "1583020800" } }),
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1583020800" },
+      }),
       "Takeout/Google Photos/2020/b.jpg": "binary",
     });
     const paths = Object.keys(zip.files);

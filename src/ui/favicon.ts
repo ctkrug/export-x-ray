@@ -12,7 +12,10 @@ export function buildFaviconDataUri(accent: string = ACCENT, bg: string = BG): s
 }
 
 /** Injects (or replaces) the page's favicon link with the generated SVG. */
-export function injectFavicon(doc: Document = document, dataUri: string = buildFaviconDataUri()): void {
+export function injectFavicon(
+  doc: Document = document,
+  dataUri: string = buildFaviconDataUri(),
+): void {
   let link = doc.querySelector<HTMLLinkElement>('link[rel="icon"]');
   if (!link) {
     link = doc.createElement("link");

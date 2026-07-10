@@ -33,9 +33,13 @@ describe("renderStatTiles", () => {
 
   it("treats a folder name containing markup as plain text, never as HTML", () => {
     const container = document.createElement("div");
-    renderStatTiles(container, [{ label: "Top-level entries", value: "<img src=x onerror=alert(1)>" }]);
+    renderStatTiles(container, [
+      { label: "Top-level entries", value: "<img src=x onerror=alert(1)>" },
+    ]);
     expect(container.querySelector("img")).toBeNull();
-    expect(container.querySelector(".stat-value")?.textContent).toBe("<img src=x onerror=alert(1)>");
+    expect(container.querySelector(".stat-value")?.textContent).toBe(
+      "<img src=x onerror=alert(1)>",
+    );
   });
 });
 

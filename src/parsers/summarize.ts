@@ -26,12 +26,18 @@ function cloneSummary(summary: ArchiveSummary): ArchiveSummary {
   return {
     ...summary,
     dateRange: { ...summary.dateRange },
-    categories: summary.categories.map((category) => ({ ...category, dateRange: { ...category.dateRange } })),
+    categories: summary.categories.map((category) => ({
+      ...category,
+      dateRange: { ...category.dateRange },
+    })),
   };
 }
 
 /** Reads an export zip entirely client-side and produces a headline summary. */
-export async function summarizeArchive(file: Blob | ArrayBuffer, options: SummarizeOptions = {}): Promise<ArchiveSummary> {
+export async function summarizeArchive(
+  file: Blob | ArrayBuffer,
+  options: SummarizeOptions = {},
+): Promise<ArchiveSummary> {
   let zip: JSZip;
   try {
     zip = await JSZip.loadAsync(file);
@@ -43,7 +49,9 @@ export async function summarizeArchive(file: Blob | ArrayBuffer, options: Summar
 
   const paths = Object.keys(zip.files).filter((path) => !zip.files[path]?.dir);
   const topLevelEntries = [
-    ...new Set(paths.map((path) => path.split("/")[0]).filter((entry): entry is string => Boolean(entry))),
+    ...new Set(
+      paths.map((path) => path.split("/")[0]).filter((entry): entry is string => Boolean(entry)),
+    ),
   ];
   const provider = detectProvider(topLevelEntries);
 
@@ -53,7 +61,9 @@ export async function summarizeArchive(file: Blob | ArrayBuffer, options: Summar
     topLevelEntries,
     dateRange: EMPTY_DATE_RANGE,
     categories:
-      provider === "google-takeout" ? CATEGORY_DEFINITIONS.map((def) => initialCategorySummary(def, paths)) : [],
+      provider === "google-takeout"
+        ? CATEGORY_DEFINITIONS.map((def) => initialCategorySummary(def, paths))
+        : [],
   };
   options.onProgress?.(cloneSummary(summary));
 
@@ -69,14 +79,20 @@ export async function summarizeArchive(file: Blob | ArrayBuffer, options: Summar
       zip,
       paths,
       (partial: CategorySummary) => {
-        summary.categories = summary.categories.map((category) => (category.key === def.key ? partial : category));
-        summary.dateRange = unionDateRanges(summary.categories.map((category) => category.dateRange));
+        summary.categories = summary.categories.map((category) =>
+          category.key === def.key ? partial : category,
+        );
+        summary.dateRange = unionDateRanges(
+          summary.categories.map((category) => category.dateRange),
+        );
         options.onProgress?.(cloneSummary(summary));
       },
       options.signal,
     );
 
-    summary.categories = summary.categories.map((category) => (category.key === def.key ? updated : category));
+    summary.categories = summary.categories.map((category) =>
+      category.key === def.key ? updated : category,
+    );
     summary.dateRange = unionDateRanges(summary.categories.map((category) => category.dateRange));
   }
 

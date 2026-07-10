@@ -3,12 +3,16 @@ import { isPhotoMediaPath, isPhotoSidecarPath, parsePhotoSidecar } from "../src/
 
 describe("parsePhotoSidecar", () => {
   it("extracts the capture timestamp from a sidecar", () => {
-    const text = JSON.stringify({ photoTakenTime: { timestamp: "1583020800", formatted: "Mar 1, 2020" } });
+    const text = JSON.stringify({
+      photoTakenTime: { timestamp: "1583020800", formatted: "Mar 1, 2020" },
+    });
     expect(parsePhotoSidecar(text)).toBe(1583020800000);
   });
 
   it("returns null when photoTakenTime is missing", () => {
-    expect(parsePhotoSidecar(JSON.stringify({ creationTime: { timestamp: "1583020800" } }))).toBeNull();
+    expect(
+      parsePhotoSidecar(JSON.stringify({ creationTime: { timestamp: "1583020800" } })),
+    ).toBeNull();
   });
 
   it("returns null for malformed JSON without throwing", () => {

@@ -64,14 +64,32 @@ export function initApp(app: HTMLElement): void {
 
   const lightbox = requireElement(app.querySelector<HTMLDivElement>("#lightbox"), "#lightbox");
   const dropzone = requireElement(app.querySelector<HTMLDivElement>("#dropzone"), "#dropzone");
-  const fileInput = requireElement(app.querySelector<HTMLInputElement>("#file-input"), "#file-input");
+  const fileInput = requireElement(
+    app.querySelector<HTMLInputElement>("#file-input"),
+    "#file-input",
+  );
   const dashboard = requireElement(app.querySelector<HTMLDivElement>("#dashboard"), "#dashboard");
-  const providerChip = requireElement(app.querySelector<HTMLSpanElement>("#provider-chip"), "#provider-chip");
+  const providerChip = requireElement(
+    app.querySelector<HTMLSpanElement>("#provider-chip"),
+    "#provider-chip",
+  );
   const statGrid = requireElement(app.querySelector<HTMLDivElement>("#stat-grid"), "#stat-grid");
-  const categoryList = requireElement(app.querySelector<HTMLDivElement>("#category-list"), "#category-list");
-  const cancelButton = requireElement(app.querySelector<HTMLButtonElement>("#cancel-button"), "#cancel-button");
-  const resetButton = requireElement(app.querySelector<HTMLButtonElement>("#reset-button"), "#reset-button");
-  const errorPanel = requireElement(app.querySelector<HTMLDivElement>("#error-panel"), "#error-panel");
+  const categoryList = requireElement(
+    app.querySelector<HTMLDivElement>("#category-list"),
+    "#category-list",
+  );
+  const cancelButton = requireElement(
+    app.querySelector<HTMLButtonElement>("#cancel-button"),
+    "#cancel-button",
+  );
+  const resetButton = requireElement(
+    app.querySelector<HTMLButtonElement>("#reset-button"),
+    "#reset-button",
+  );
+  const errorPanel = requireElement(
+    app.querySelector<HTMLDivElement>("#error-panel"),
+    "#error-panel",
+  );
 
   let controller: AbortController | null = null;
   let activeToken = 0;

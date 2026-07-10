@@ -56,7 +56,10 @@ export const CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
     countPaths: () => [],
     dateSourcePaths: (paths) =>
       paths.filter(
-        (path) => isUnder(path, "my activity") && isUnder(path, "search") && path.toLowerCase().endsWith(".json"),
+        (path) =>
+          isUnder(path, "my activity") &&
+          isUnder(path, "search") &&
+          path.toLowerCase().endsWith(".json"),
       ),
     parseDateSource: (text) => parseActivityLogFile(text),
   },
@@ -76,7 +79,11 @@ export const CATEGORY_DEFINITIONS: readonly CategoryDefinition[] = [
   },
 ];
 
-export function flagCategoryStatus(matchedFileCount: number, recordCount: number, thinThreshold: number): CategoryStatus {
+export function flagCategoryStatus(
+  matchedFileCount: number,
+  recordCount: number,
+  thinThreshold: number,
+): CategoryStatus {
   if (matchedFileCount === 0 || recordCount === 0) return "missing";
   return recordCount < thinThreshold ? "thin" : "present";
 }
@@ -88,7 +95,10 @@ export function flagCategoryStatus(matchedFileCount: number, recordCount: number
  * many records (Location/Search/YouTube) get a provisional "present" until
  * accumulateCategory decompresses and counts them for real.
  */
-export function initialCategorySummary(def: CategoryDefinition, paths: readonly string[]): CategorySummary {
+export function initialCategorySummary(
+  def: CategoryDefinition,
+  paths: readonly string[],
+): CategorySummary {
   const directPaths = def.countPaths(paths);
   const dateSources = def.dateSourcePaths(paths);
   const matchedFiles = directPaths.length + dateSources.length;

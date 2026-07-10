@@ -40,8 +40,12 @@ describe("summarizeArchive", () => {
         locations: [{ timestampMs: "1577836800000" }],
       }),
       "Takeout/Google Photos/2020/a.jpg": "binary",
-      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({ photoTakenTime: { timestamp: "1583020800" } }),
-      "Takeout/My Activity/Search/MyActivity.json": JSON.stringify([{ time: "2019-01-01T00:00:00Z" }]),
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1583020800" },
+      }),
+      "Takeout/My Activity/Search/MyActivity.json": JSON.stringify([
+        { time: "2019-01-01T00:00:00Z" },
+      ]),
       "Takeout/YouTube and YouTube Music/history/watch-history.json": JSON.stringify([
         { time: "2021-06-01T00:00:00Z" },
       ]),
@@ -74,7 +78,9 @@ describe("summarizeArchive", () => {
   it("streams progress: the fast path-matching pass fires before any decompression completes", async () => {
     const archive = await buildZip({
       "Takeout/Google Photos/2020/a.jpg": "binary",
-      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({ photoTakenTime: { timestamp: "1583020800" } }),
+      "Takeout/Google Photos/2020/a.jpg.json": JSON.stringify({
+        photoTakenTime: { timestamp: "1583020800" },
+      }),
     });
 
     const snapshots: number[] = [];
@@ -101,12 +107,16 @@ describe("summarizeArchive", () => {
 
   it("surfaces a clear error for a non-zip file instead of throwing JSZip's raw message", async () => {
     const notAZip = new TextEncoder().encode("plain text, not a zip").buffer;
-    await expect(summarizeArchive(notAZip)).rejects.toThrow("couldn't read this file as a zip archive");
+    await expect(summarizeArchive(notAZip)).rejects.toThrow(
+      "couldn't read this file as a zip archive",
+    );
   });
 
   it("surfaces the same clear error for a truncated/corrupted zip", async () => {
     const validZip = await buildZip({ "notes.txt": "hello" });
     const truncated = validZip.slice(0, Math.floor(validZip.byteLength / 2));
-    await expect(summarizeArchive(truncated)).rejects.toThrow("couldn't read this file as a zip archive");
+    await expect(summarizeArchive(truncated)).rejects.toThrow(
+      "couldn't read this file as a zip archive",
+    );
   });
 });

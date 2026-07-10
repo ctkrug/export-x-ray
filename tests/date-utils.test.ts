@@ -78,7 +78,10 @@ describe("formatDate / formatDateRange", () => {
   });
 
   it("formats a complete range as en-dash separated dates", () => {
-    const range = { earliestMs: Date.parse("2012-01-01T00:00:00Z"), latestMs: Date.parse("2024-07-10T00:00:00Z") };
+    const range = {
+      earliestMs: Date.parse("2012-01-01T00:00:00Z"),
+      latestMs: Date.parse("2024-07-10T00:00:00Z"),
+    };
     expect(formatDateRange(range)).toBe("2012-01-01 – 2024-07-10");
   });
 

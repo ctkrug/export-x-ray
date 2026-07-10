@@ -57,9 +57,17 @@ describe("forEachChunked", () => {
   it("handles an empty sequence without invoking fn or yielding", async () => {
     let calls = 0;
     let yields = 0;
-    await forEachChunked([], () => {
-      calls += 1;
-    }, { yield: async () => { yields += 1; } });
+    await forEachChunked(
+      [],
+      () => {
+        calls += 1;
+      },
+      {
+        yield: async () => {
+          yields += 1;
+        },
+      },
+    );
     expect(calls).toBe(0);
     expect(yields).toBe(0);
   });
