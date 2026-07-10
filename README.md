@@ -55,6 +55,20 @@ archive it, or delete the account it came from.
 - **Vitest** — unit tests for parsers and format detection.
 - Zero backend. Zero analytics. Zero data leaving the browser.
 
+## Development
+
+Requires Node.js 20.9+.
+
+```sh
+npm install
+npm run dev        # starts the Vite dev server
+npm test           # runs the Vitest suite
+npm run build      # type-checks and builds dist/
+```
+
+Other useful scripts: `npm run typecheck`, `npm run lint`, `npm run format:check`, and
+`npm run test:coverage` for a line-coverage report.
+
 ## Status
 
 All v1 stories are built and tested: the wow moment, all three providers' parsers, a downloadable
