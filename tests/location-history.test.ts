@@ -85,4 +85,17 @@ describe("parseLocationHistoryFile", () => {
     const result = parseLocationHistoryFile(text);
     expect(result.timestamps).toEqual([null]);
   });
+
+  it("prefers activitySegment's duration when a timeline object carries both fields", () => {
+    const text = JSON.stringify({
+      timelineObjects: [
+        {
+          activitySegment: { duration: { startTimestamp: "2020-03-01T00:00:00Z" } },
+          placeVisit: { duration: { startTimestamp: "2020-04-01T00:00:00Z" } },
+        },
+      ],
+    });
+    const result = parseLocationHistoryFile(text);
+    expect(result.timestamps).toEqual([Date.parse("2020-03-01T00:00:00Z")]);
+  });
 });
