@@ -61,6 +61,14 @@ describe("parseFacebookMessagesFile", () => {
   it("returns empty for malformed JSON instead of throwing", () => {
     expect(parseFacebookMessagesFile("not json")).toEqual({ recordCount: 0, timestamps: [] });
   });
+
+  it("emits null instead of throwing for messages that aren't objects", () => {
+    const result = parseFacebookMessagesFile(
+      JSON.stringify({ messages: [null, "garbage", { timestamp_ms: 1622541600000 }] }),
+    );
+    expect(result.recordCount).toBe(3);
+    expect(result.timestamps).toEqual([null, null, 1622541600000]);
+  });
 });
 
 describe("Facebook path matchers", () => {
