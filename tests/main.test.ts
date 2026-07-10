@@ -29,6 +29,7 @@ function mount() {
     errorPanel: root.querySelector<HTMLDivElement>("#error-panel")!,
     providerChip: root.querySelector<HTMLSpanElement>("#provider-chip")!,
     statGrid: root.querySelector<HTMLDivElement>("#stat-grid")!,
+    exportButton: root.querySelector<HTMLButtonElement>("#export-button")!,
     cancelButton: root.querySelector<HTMLButtonElement>("#cancel-button")!,
     resetButton: root.querySelector<HTMLButtonElement>("#reset-button")!,
     fileInput: root.querySelector<HTMLInputElement>("#file-input")!,
@@ -69,6 +70,25 @@ describe("initApp", () => {
     await vi.waitFor(() => expect(ui.errorPanel.hidden).toBe(false));
     expect(ui.errorPanel.textContent).toContain("couldn't read this file as a zip archive");
     expect(ui.dashboard.hidden).toBe(true);
+    expect(ui.exportButton.hidden).toBe(true);
+  });
+
+  it("reveals Export summary once a result is in and downloads the current summary on click", async () => {
+    URL.createObjectURL = vi.fn(() => "blob:mock-url") as unknown as typeof URL.createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+
+    const ui = mount();
+    const file = await buildZipFile({ "Takeout/YouTube/history.json": "[]" });
+
+    expect(ui.exportButton.hidden).toBe(true);
+    ui.dropzone.dispatchEvent(dropEvent(file));
+    await vi.waitFor(() => expect(ui.exportButton.hidden).toBe(false));
+
+    ui.exportButton.click();
+
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+    expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
   it("returns to the idle dropzone when Cancel is invoked mid-parse", async () => {
