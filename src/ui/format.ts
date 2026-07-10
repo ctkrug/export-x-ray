@@ -55,7 +55,7 @@ export function buildStatTiles(summary: ArchiveSummary): StatTile[] {
 
   const photos = findCategory(summary, "photos");
   if (photos && photos.status !== "missing") {
-    tiles.push({ label: "Photos", value: formatCount(photos.recordCount) });
+    tiles.push({ label: photos.label, value: formatCount(photos.recordCount) });
     tiles.push({
       label: "Oldest photo",
       value: photos.dateRange.earliestMs === null ? "—" : formatDate(photos.dateRange.earliestMs),
@@ -64,6 +64,12 @@ export function buildStatTiles(summary: ArchiveSummary): StatTile[] {
       label: "Newest photo",
       value: photos.dateRange.latestMs === null ? "—" : formatDate(photos.dateRange.latestMs),
     });
+  }
+
+  const HEADLINE_KEYS: readonly CategoryKey[] = ["location", "photos"];
+  for (const category of summary.categories) {
+    if (HEADLINE_KEYS.includes(category.key) || category.status === "missing") continue;
+    tiles.push({ label: category.label, value: formatCategoryCount(category) });
   }
 
   if (summary.categories.length === 0) {
